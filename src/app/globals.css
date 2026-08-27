@@ -1,0 +1,1087 @@
+/* ふりっぷ一覧
+ * ================================================================
+ * 株式会社こす.くまのホームページ（kosukuma.com）の中の1ページ。
+ * ただしトップページの写しではなく、「もくじ／リンク集」の役のページ。
+ *
+ * ── 同じ会社のページである印（本物の /assets/css/style.css・home.css から採ったもの）
+ *     壁紙 bg.gif ／ GIFのカーソル2枚 ／ a{color:blue} の下線リンク ／ .blink の点滅
+ *     text-align:center の版面 ／ 表の罫 solid 2px yellowgreen ＋ border-style:inset
+ *     箇条書きの点 arrow_list.gif ／ 下位ページの題に引く朱の3pxの罫
+ *     書体は指定しない（本物も body に font-family を1つも書いていない）
+ *     余白は詰めない。空きすぎているのが本物の顔
+ *
+ * ── このページだけのもの
+ *     もくじの箱 ／ 黒地に山吹の電光掲示板 ／ 更新履歴の <dl>
+ *     用語を1マスの表で囲うせつめい ／ 壁紙の見本 ／ 奥付のカウンター
+ *
+ * 立体はCSSで描かない。本物にその発想が1つも無い（立体はぜんぶGIF）。
+ * ここで使っている枠は、本物と同じ border-style:inset だけ。
+ */
+
+/* ── 和文ドット書体 ────────────────────────────────
+   カセットのラベル（src/art/gfx.ts の textJP）が canvas に描くときの
+   フォント。ファイルは public/fonts/ に前から置いてあったが、
+   ここで @font-face を書いていなかったため実際には読み込まれておらず、
+   たまたま同名の書体がシステムに入っている端末でだけ正しく見えていた
+   （それ以外の端末では代替書体にフォールバックし、13px+高い閾値という
+   ぎりぎりの設定と噛み合わずラベルの字が砂嵐状に崩れていた）。 */
+@font-face {
+  font-family: "DotGothic16";
+  src: url("/fonts/DotGothic16-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+/* ── リセット（本物 style.css の頭と同じ） ───────────────── */
+*,
+:after,
+:before {
+  box-sizing: border-box;
+}
+blockquote,
+body,
+dd,
+dl,
+dt,
+figure,
+h1,
+h2,
+h3,
+h4,
+ol,
+p,
+table,
+ul {
+  margin: 0;
+}
+html {
+  scroll-behavior: smooth;
+}
+img {
+  max-width: 100%;
+  display: block;
+}
+ul {
+  list-style: none;
+  padding: 0;
+}
+li {
+  list-style: none;
+}
+
+/* ── 本物 style.css の body / a ─────────────────────── */
+html {
+  width: 100%;
+  height: 100%;
+}
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+  line-height: 1.5;
+  text-rendering: optimizeSpeed;
+  /* カーソルがGIF。本物と同じ2枚 */
+  cursor: url(/hp/cursor.gif), default;
+  /* 字を滑らかにしない。ここが2003年の顔 */
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: none;
+  /* 書体は書かない。本物 style.css も body に font-family を1つも書いていないので、
+     ブラウザの既定（macOSの和文なら Hiragino Kaku Gothic ProN）がそのまま出る。
+     ここに今どきの書体名を書くと、それだけで2020年代のページになる。 */
+  font-size: 16px;
+  color: #000;
+}
+a {
+  cursor: url(/hp/cursor_on.gif), default;
+  color: blue;
+}
+
+/* 点滅。消えている割合（4割）は本物 style.css のまま。
+   速さだけ本物の0.5秒から3倍ゆっくりにしてある。
+   0.5秒は当時の作法そのものだが、この版面では字が大きいので目にうるさかった。 */
+.blink {
+  animation: 1.5s linear infinite blink_effect;
+}
+@keyframes blink_effect {
+  0% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 0;
+  }
+  41% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── 版面 ──────────────────────────────────────
+   壁紙は会社HPと同じ bg.gif（150pxのタイルにこすくまが薄く入っている）。
+   そして全部まんなか寄せ。ここが効いていて、何を置いても同じ会社に見える。 */
+#home {
+  background: url(/hp/bg.gif);
+  text-align: center;
+}
+#home img {
+  margin: auto;
+}
+
+/* 壁紙をかえる。既定（クリーム）は上の bg.gif のまま。
+   えらんだ色は body の data-fl-bg に入る（BgPicker.tsx）。
+   9枚とも tools/make-bg.py が bg.gif から起こしたもの。
+   色相の順にならべてある（黄緑→青緑→水→青紫→紫→桜→桃→橙、最後に灰） */
+#home[data-fl-bg="wakaba"] {
+  background-image: url(/hp/bg_wakaba.gif);
+}
+#home[data-fl-bg="mint"] {
+  background-image: url(/hp/bg_mint.gif);
+}
+#home[data-fl-bg="mizu"] {
+  background-image: url(/hp/bg_mizu.gif);
+}
+#home[data-fl-bg="sky"] {
+  background-image: url(/hp/bg_sky.gif);
+}
+#home[data-fl-bg="sumire"] {
+  background-image: url(/hp/bg_sumire.gif);
+}
+#home[data-fl-bg="sakura"] {
+  background-image: url(/hp/bg_sakura.gif);
+}
+#home[data-fl-bg="peach"] {
+  background-image: url(/hp/bg_peach.gif);
+}
+#home[data-fl-bg="anzu"] {
+  background-image: url(/hp/bg_anzu.gif);
+}
+#home[data-fl-bg="hai"] {
+  background-image: url(/hp/bg_hai.gif);
+}
+
+/* 携帯だけ壁紙を1/3にする。
+   タイルは150pxの等倍で敷いてある。パソコン(窓幅1440px)ならタイルは画面幅の
+   約10%で、こすくまが薄く散っている見え方になる。ところが携帯(393px)では
+   同じ150pxが画面幅の38%を占めてしまい、顔が3つ並ぶだけの「アップ」に見えた。
+   そこで携帯のときだけタイルを50pxに落とし、画面幅に対する比(約13%)を
+   パソコンとそろえる。150の1/3ちょうどなので割り切れて、柄がにじみにくい。
+   カセットの絵は等倍のままなので、上の 620px の指定とは別に分けてある。 */
+@media screen and (max-width: 620px) {
+  #home {
+    background-size: 50px 50px;
+  }
+}
+
+
+/* ── 見出しの色 ──────────────────────────────────
+   ページ名と節の見出しの色は、壁紙にそろえて変わる。
+   採り方は「壁紙の地色の**真反対の色相**（CIE Lab で180度まわしたところ）で、
+   sRGB に乗るいちばん鮮やかな色」。ただし読めなくては困るので、
+   地色とのコントラスト比3.5以上に入るものの中から選んでいる。
+
+   黄の反対（＝みずいろ・ふじ色の見出し）だけは、鮮やかにすると明るくなりすぎ、
+   読める濃さまで落とすと橙茶・うぐいす色に寄る。黄はもともと濃くできない色なので、
+   ここは色相を守って濁るほうを採った。
+
+   WordArt.tsx は色を要素の style に直接書いているので、上書きに !important が要る。
+   縁の色（題は黒・節は白）と字の組みには触らない。塗りの色だけ差し替える。 */
+/* クリーム … 色相96.0度 → 真反対276.0度 → あお */
+#home {
+  --flip-ttl: #1883e1;
+}
+/* わかば … 色相135.0度 → 真反対315.0度 → むらさき */
+#home[data-fl-bg="wakaba"] {
+  --flip-ttl: #9f0ff9;
+}
+/* ミント … 色相191.6度 → 真反対11.6度 → べに */
+#home[data-fl-bg="mint"] {
+  --flip-ttl: #fa1569;
+}
+/* みずいろ … 色相245.0度 → 真反対65.0度 → こげちゃ */
+#home[data-fl-bg="mizu"] {
+  --flip-ttl: #bb6807;
+}
+/* ふじ色 … 色相288.6度 → 真反対108.6度 → うぐいす */
+#home[data-fl-bg="sky"] {
+  --flip-ttl: #778308;
+}
+/* すみれ … 色相320.0度 → 真反対140.0度 → みどり */
+#home[data-fl-bg="sumire"] {
+  --flip-ttl: #109428;
+}
+/* さくら … 色相355.0度 → 真反対175.0度 → あおみどり */
+#home[data-fl-bg="sakura"] {
+  --flip-ttl: #0f8c75;
+}
+/* もも色 … 色相32.4度 → 真反対212.4度 → あお */
+#home[data-fl-bg="peach"] {
+  --flip-ttl: #108795;
+}
+/* あんず … 色相62.0度 → 真反対242.0度 → あお */
+#home[data-fl-bg="anzu"] {
+  --flip-ttl: #1287af;
+}
+/* はいいろ … 色みが無いので反対色も無い。当時のリンク色（純青）を借りる → あお */
+#home[data-fl-bg="hai"] {
+  --flip-ttl: #0000cc;
+}
+
+/* ページ名は1色べた塗り（heading-company と同じ組み）。塗りだけ差し替える */
+#home .pagettl .wa {
+  --wa-fill-color: var(--flip-ttl) !important;
+}
+/* 節の見出しは上が明るく下が暗い縦グラデ（ttl_news.gif の組み）。
+   手本の緑は上 #2aaf20 → 下 #0a6404 で、下端が上端の56%の暗さ。
+   その落ち方だけもらって、色は --flip-ttl から作る。
+
+   @supports で囲ってあるのは、節の見出しの字が
+   「透明にして background-clip:text で塗る」作りだから。
+   color-mix を知らないブラウザだと --wa-fill-image が丸ごと無効になり、
+   塗るものが無くなって**字が消える**。囲っておけば、その場合は
+   WordArt.tsx が書いた元の緑のグラデがそのまま残る。 */
+@supports (color: color-mix(in srgb, red 50%, blue)) {
+  #home .sec .wa {
+    --wa-fill-image: linear-gradient(
+      180deg,
+      var(--flip-ttl) 0%,
+      color-mix(in srgb, var(--flip-ttl) 78%, #000000) 50%,
+      color-mix(in srgb, var(--flip-ttl) 56%, #000000) 100%
+    ) !important;
+  }
+}
+
+/* 本文の幅。本物の #container・.cont01 が1000px、表が800pxなので、そのあいだ */
+#home main {
+  padding-bottom: 10px;
+}
+
+/* ── 天 ────────────────────────────────────────
+   会社のロゴは置かない。このページの題は「ふりっぷ一覧」のほうなので、
+   ここは「いまどこにいるか」の1行だけ。訪問者カウンターは奥付に置いてある。 */
+#home .header {
+  margin: 20px auto 0;
+}
+#home .crumb {
+  margin-top: 0;
+  font-size: 13px;
+}
+
+/* ── ページ名 ───────────────────────────────────
+   本物の下位ページ（本物 style.css の #contact #container h1）は、
+   題の下に朱の3pxの罫を引いている。その作りをそのままもらう。
+   字は見出し画像の組み（WordArt.tsx）で出す。
+   1字ずつ別の要素にしてあるのは、あとで1字ずつひっくり返せるようにするため。 */
+#home .pagettl {
+  width: 900px;
+  max-width: 100%;
+  margin: 56px auto 0;
+  padding-bottom: 10px;
+  border-bottom: solid 3px orangered;
+  line-height: 1;
+}
+/* 1字ずつ別の要素。WordArt は字面を横に1.093倍しているので、
+   そのままならべると隣とくっつく。2pxずつ逃がしておく */
+#home .pagettl .ttl-c {
+  display: inline-block;
+  margin: 0 3px;
+}
+
+#home .lead {
+  margin-top: 22px;
+  font-weight: bold;
+}
+#home .lead .blink {
+  color: #c00000;
+}
+#home .lastmod {
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+/* ── 電光掲示板 ──────────────────────────────────
+   ページのいちばん上。会社トップは同じ高さのところに青空の帯があるので、
+   こちらはそこを空けて、帯を天のさらに上へ持ってきてある。
+   本物の .marquee からもらっているのは「帯の中を字が右から左へ流れる」ことと、
+   「中の <span> だけ色をかえて下線を引く」ところと、点線の枠を使うところだけ。
+   面は紺地に黄で、当時の <marquee bgcolor=navy> のいちばんありふれた組み合わせ。
+   掴んで引っぱると裏返る（下の「仕掛け」の節）。 */
+#home .marquee {
+  height: 56px;
+  overflow: hidden;
+  position: relative;
+  background: #000080;
+  border-bottom: dotted 4px #ffff00;
+  font-weight: bold;
+  font-size: 28px;
+  color: #ffff00;
+  letter-spacing: 2px;
+}
+#home .marquee p {
+  white-space: nowrap;
+  width: fit-content;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 52px;
+  line-height: 52px;
+  /* 昔は jQuery や <marquee> で流していた。ここはCSSで同じ動きにする。
+     負の delay を入れてあるのは、開いた瞬間から流れている途中に見せるため */
+  animation: marquee 26s linear infinite;
+  animation-delay: -11s;
+}
+#home .marquee span {
+  color: #ffffff;
+  text-decoration: underline;
+}
+@keyframes marquee {
+  from {
+    transform: translateX(100vw);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* ── もくじ ─────────────────────────────────────
+   当時のリンク集・もくじのページには、たいてい頭にこれがあった。
+   箱の罫は本物の表と同じ組み（solid 2px yellowgreen を inset にする）。 */
+#home .moku {
+  width: 440px;
+  max-width: 100%;
+  margin: 50px auto 0;
+  padding: 12px 22px 16px;
+  background: #ffffff;
+  border: solid 2px yellowgreen;
+  border-style: inset;
+  text-align: left;
+}
+#home .moku-h {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+/* 箇条書きの点は本物と同じ矢印のGIF。padding と位置の数字も本物のまま
+   （本物 home.css の #home .cont01_news ul li） */
+#home .moku li {
+  padding-left: 20px;
+  background: url(/hp/arrow_list.gif) no-repeat;
+  background-position: left top 10px;
+}
+
+/* ── 節 ────────────────────────────────────────
+   本物の section は padding:64px 16px。余白は詰めない。 */
+#home section {
+  padding: 64px 16px 0;
+}
+/* 節の見出し。本物のトップは4色の見出しを大小使い分けているが、
+   こちらは小さい緑（最新情報のGIFと同じ組み）の一種でそろえてある。
+   まんなか寄せなのも、左端にそろえる本物の .common_heading とは別。 */
+#home .sec {
+  margin: 0 0 24px;
+  line-height: 1;
+}
+/* 一覧表の見出しだけ大きい。ページの用がそれだから */
+#home .sec--main {
+  margin-bottom: 30px;
+}
+
+/* 注記・ならび順の1行。表と同じ幅にそろえてあるので左端がぴったり合う */
+#home .note {
+  width: 900px;
+  max-width: 100%;
+  margin: 0 auto 10px;
+  text-align: left;
+  font-size: 13px;
+}
+#home .note--foot {
+  margin: 12px auto 0;
+}
+#home .order {
+  width: 900px;
+  max-width: 100%;
+  margin: 0 auto 6px;
+  text-align: right;
+  font-size: 13px;
+}
+/* 長い節の終わりに置くもどり道。当時の作法 */
+#home .uphere {
+  width: 900px;
+  max-width: 100%;
+  margin: 14px auto 0;
+  text-align: right;
+  font-size: 13px;
+}
+/* ならび順のしるし。flip と打つと上を向く（下の「仕掛け」の節）。
+   ※ class の名前は tools/tricks.mjs が見ているので変えない */
+#home .yarrow {
+  display: inline-block;
+  margin: 0 3px;
+  color: #c00000;
+  font-size: 15px;
+}
+
+/* ── 一覧表 ─────────────────────────────────────
+   罫は本物の表そのまま（本物 home.css の #home .cont02 table）。
+     border: solid 2px yellowgreen / border-style: inset / background: #fff
+     th はまんなか・td は左、border-collapse は指定しない
+     セルの余白の指定も無い（＝UA既定の1px）。だから字が罫にくっつく
+   ここは同じ会社のページである印なので1つも変えない。 */
+#home .cont02 {
+  margin: 0 auto;
+}
+/* 列は No.／カセット／名前／どんなもの／ぐあい の5つ。
+   公開日と担当は出さない（公開日は更新履歴のほうに出ている）。
+   幅は他の節（注記・ならび順・更新履歴）と同じ900px。
+   ここを広げると、表の上にある注記の左右の端と合わなくなる */
+#home .cont02 table {
+  width: 900px;
+  max-width: 100%;
+  margin: auto;
+}
+#home .cont02 table th {
+  border: solid 2px yellowgreen;
+  border-style: inset;
+  background: #ffffff;
+  text-align: center;
+}
+/* 行の背が絵の高さ（128px）で決まるので、字は上ではなくまんなかに置く。
+   上寄せにすると、字だけが天井に貼り付いて絵と関係が切れて見える */
+#home .cont02 table td {
+  border: solid 2px yellowgreen;
+  border-style: inset;
+  background: #ffffff;
+  text-align: left;
+  vertical-align: middle;
+}
+#home .cont02 table th.head {
+  font-weight: bold;
+}
+.t-no {
+  width: 40px;
+  text-align: center !important;
+  font-weight: bold;
+}
+
+/* ── カセットの絵の列 ───────────────────────────
+   当時のリンク集が行の頭にバナーGIFを並べていたのと同じ役。
+   絵は 88x64 のドット絵を2倍にしたもの（176x128）。
+   image-rendering: pixelated を入れておくのは、
+   拡大は canvas の中で済ませてあるので効かないはずでも、
+   ブラウザが勝手に滲ませたときの保険。 */
+.t-cart {
+  width: 186px;
+  text-align: center !important;
+  vertical-align: middle !important;
+  padding: 3px 0 !important;
+}
+.cartlink {
+  display: inline-block;
+  line-height: 0;
+}
+/* 絵のリンクには下線が要らない（字のリンクには付いたまま） */
+#home .cont02 table td.t-cart a {
+  text-decoration: none;
+}
+#home .cont02 table td.t-cart canvas {
+  display: block;
+  image-rendering: pixelated;
+}
+/* まだ公開していないもの。少し色を抜いて、棚の奥に置いた感じにする。
+   前は brightness と contrast も動かしていたが、それをやると
+   ラベルに書いてあるふりっぷの名前が白っぽくなって読めなくなった。
+   「まだできていない」は隣の「ぐあい」の欄が言っているので、
+   ここは色を抜くだけに留める。 */
+.cartlink.soon canvas {
+  filter: grayscale(0.4);
+}
+
+/* 「ともだちジェネレーター」が1行で収まる幅。
+   ここより狭いと、10字の名前が軒並み2行に折れる */
+.t-ttl {
+  width: 200px;
+}
+#home .cont02 table td.t-ttl a,
+#home .cont02 table td.t-ttl .nolink {
+  font-weight: bold;
+}
+/* 行き先のないもの。押せないので灰色にしておく */
+#home .cont02 table td.t-ttl .nolink {
+  color: #666666;
+}
+.t-state {
+  width: 74px;
+  text-align: center !important;
+}
+.t-state .open {
+  font-weight: bold;
+  color: green;
+}
+
+/* 工事中の札。当時はGIFのマークを貼っていたが手元に無いので、
+   字と罫だけで作る。黄色地に黒枠、それだけ */
+.kouji {
+  display: inline-block;
+  border: solid 2px #000000;
+  background: #ffff00;
+  color: #000000;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 15px;
+  padding: 0 3px;
+  white-space: nowrap;
+}
+
+/* ── 更新履歴 ────────────────────────────────────
+   日付＋一行。本物の最新情報は <ul> だが、こちらは <dl> を float でならべる。
+   日付の頭の点は本物と同じ矢印のGIF。 */
+#home .rireki {
+  width: 900px;
+  max-width: 100%;
+  margin: 0 auto;
+  text-align: left;
+}
+#home .rireki-row {
+  overflow: hidden;
+}
+#home .rireki dt {
+  float: left;
+  clear: left;
+  width: 200px;
+  padding-left: 20px;
+  background: url(/hp/arrow_list.gif) no-repeat;
+  background-position: left top 10px;
+  font-weight: bold;
+}
+#home .rireki dd {
+  margin: 0 0 2px 200px;
+}
+#home .rireki dd .new img {
+  display: inline;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+/* ── ふりっぷとは ──────────────────────────────
+   当時は本文を囲うのに表を1マスだけ使った。罫は本物の表と同じ組み。
+   中の4行はこす.くまの言葉なので、字も並びもいっさい触っていない。 */
+#home .def {
+  width: 760px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+#home .def td {
+  border: solid 2px yellowgreen;
+  border-style: inset;
+  background: #ffffff;
+  text-align: left;
+  padding: 20px 26px 22px;
+  font-size: 17px;
+}
+/* 見出し語の前の1行。辞書でいう「分類」にあたるので、
+   見出し語より小さく、下に細い罫を引いて頭書きだと分かるようにする */
+#home .def-lead {
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: dotted 1px #b5b5b5;
+  font-weight: bold;
+}
+#home .def-word {
+  font-size: 22px;
+  font-weight: bold;
+}
+#home .def-pos {
+  font-size: 14px;
+  font-weight: normal;
+  margin-left: 4px;
+}
+#home .def-gloss {
+  color: #c00000;
+  font-weight: bold;
+  margin: 10px 0 16px;
+}
+#home .def td p {
+  margin-bottom: 4px;
+}
+#home .def td p:last-child {
+  margin-bottom: 0;
+}
+
+/* ── 背景をかえる ────────────────────────────────
+   小さな見本を字と同じ行にならべる。色を塗った四角ではなく、
+   壁紙そのもの（150pxのタイル）を小さな窓から覗かせている。
+   当時の「背景色をかえる」はこの形（小さな四角＋色の名前が1行）だった。 */
+#home .bgpick-lead {
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+#home .bgpick-row {
+  line-height: 2;
+}
+#home .bgpick-one {
+  white-space: nowrap;
+  text-decoration: none;
+}
+#home .bgpick-one i {
+  display: inline-block;
+  width: 40px;
+  height: 26px;
+  margin-right: 5px;
+  vertical-align: -8px;
+  border: solid 2px #000000;
+}
+#home .bgpick-one b {
+  font-weight: normal;
+  text-decoration: underline;
+}
+/* 見本と見本のあいだの区切り。当時のリンク集の作法 */
+#home .bgpick-bar {
+  margin: 0 12px;
+  color: #666666;
+}
+/* ★の場所。いつも取ってあって、いまの色のときだけ見える。
+   （出し入れすると押すたびに行の幅がかわってずれる） */
+#home .bgpick-star {
+  font-style: normal;
+  color: #c00000;
+  visibility: hidden;
+}
+/* いまの色。枠を朱にして、名前の頭に★が付く。
+   太さは変えない（太くすると字幅がかわって、やはり行がずれる） */
+#home .bgpick-one.is-now i {
+  border-color: orangered;
+}
+#home .bgpick-one.is-now .bgpick-star {
+  visibility: visible;
+}
+#home .bgpick-one.is-now b {
+  color: #c00000;
+}
+#home .bgpick-note {
+  margin-top: 16px;
+  font-size: 13px;
+}
+
+/* ── 奥付 ──────────────────────────────────────
+   カウンター・リンクフリー・もどり道。
+   当時の個人ページのカウンターはたいていここにあった。 */
+#home .okuduke {
+  margin-top: 84px;
+}
+#home .okuduke-h {
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+#home .okuduke p {
+  margin-bottom: 12px;
+}
+/* カウンターの本日／昨日の行と、次の「リンクフリーです」の段落のあいだだけ
+   1行ぶん余計にあける（他の段落間隔は詰めたまま） */
+#home .okuduke .hit-sub {
+  margin-bottom: 36px;
+}
+/* 1本目(先頭へもどる)の上を5行ぶんあける（16px×1.5行送り=24px×5）。
+   Counter が .hit/.hit-sub という p を先に出しているので :first-of-type は
+   そちらに取られて効かない。2本目にだけ効く隣接セレクタで上書きする作り。 */
+#home .back {
+  margin-top: 120px;
+  margin-bottom: 0;
+  font-size: 14px;
+}
+/* 2本目(トップページへもどる)は1本目とすぐ続ける。間隔は元の18pxのまま */
+#home .okuduke .back + .back {
+  margin-top: 18px;
+}
+
+/* カウンター。会社HPのトップは天に1つ、黒地に白い数字・青の3px枠・5桁の
+   CGI画像（本物 home.css の #home .header p img）。
+   こちらは桁を1枚ずつの絵で返すCGIのほうに寄せて、白地・黒枠の小さな箱を
+   6つならべる。桁も6桁にした。 */
+#home .hit {
+  font-weight: bold;
+}
+.count {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 6px;
+  line-height: 0;
+  white-space: nowrap;
+}
+.count b {
+  display: inline-block;
+  width: 20px;
+  height: 26px;
+  line-height: 24px;
+  margin-right: 1px;
+  border: solid 1px #000000;
+  background: #ffffff;
+  font-family: "Osaka-Mono", "MS Gothic", monospace;
+  font-size: 19px;
+  font-weight: bold;
+  color: #000000;
+  text-align: center;
+}
+.count b:last-child {
+  margin-right: 0;
+}
+#home .hit-sub {
+  font-size: 13px;
+}
+#home .hit-sub .count {
+  margin: 0 3px;
+}
+.count--s b {
+  width: 15px;
+  height: 20px;
+  line-height: 18px;
+  font-size: 14px;
+}
+
+/* ── ページのいちばん下（本物 style.css の .footer をそのまま） ─────
+   .footer{padding-top:100px;text-align:center} と
+   .footer p.caution{margin-bottom:10px} だけ。罫線も下の余白も無い。 */
+.footer {
+  padding-top: 100px;
+  text-align: center;
+}
+.footer p.caution {
+  margin-bottom: 10px;
+}
+.footer .copy {
+  display: block;
+}
+
+/* ── 狭い窓・携帯のとき ──────────────────────────
+   本物のHPも @media screen and (max-width:480px) を持っていて、
+   そこでは箱を width:100% にして、50pxの題を30pxに落としている。
+   viewport を device-width にしたので（layout.tsx）、ここが携帯でも通る。 */
+@media screen and (max-width: 1000px) {
+  #home .pagettl,
+  #home .note,
+  #home .order,
+  #home .rireki,
+  #home .cont02 table {
+    width: 100%;
+  }
+  #home .def {
+    width: 100%;
+  }
+}
+
+/* 「どんなもの」を名前のマスの中に出すのは携帯のときだけ。
+   パソコンでは列のほうに出ているので、こちらは伏せておく */
+.t-sub {
+  display: none;
+}
+
+/* ── 携帯でも表のまま ────────────────────────────
+   畳んで1本1枚の札にはしない。パソコンと同じ「表」で見せる。
+
+   ただし5列を並べると、393pxの版面では「どんなもの」が1行4文字になる。
+   そこでその1列だけ伏せて、字は名前と同じマスへ移す（FlipTable.tsx の .t-sub）。
+   **カセットの絵は 176x128 の等倍から動かさない。** ここが要点で、
+   絵を半分にするとラベルの和文が13px相当まで落ちて読みにくい。
+   等倍なら26px相当で出る。
+
+   絵を縮めずに済むのは viewport を device-width にしたから（layout.tsx）。
+   1200px固定のままだと版面ごと1/3に縮み、等倍の絵でも8px相当だった。 */
+@media screen and (max-width: 620px) {
+  #home .cont02 table th,
+  #home .cont02 table td {
+    font-size: 12px;
+  }
+  /* 「どんなもの」の列は伏せる。字は名前のマスの中に出す */
+  #home .cont02 .t-desc {
+    display: none;
+  }
+  #home .cont02 td.t-ttl .t-sub {
+    display: block;
+    margin-top: 3px;
+    font-weight: normal;
+    color: #000000;
+    /* 地の文(12px)より3px小さく */
+    font-size: 9px;
+  }
+  /* 20pxだと2桁(10〜16番)の太字数字が幅に入りきらず、"1"と"6"が
+     縦に2段へ折り返っていた（携帯だけで起こる改行崩れ）。実測で
+     "16" は17px要る（12px太字）ので、枠の余白ぶんを足して確保する */
+  #home .cont02 td.t-no,
+  #home .cont02 th.t-no {
+    width: 26px;
+  }
+  /* カセットの絵を少しだけ縮め(176x128→154x112・7/8倍)、浮いた分を
+     ふりっぷの名前のマスへまわす。字母は事前計算ビットマップになった
+     （jpGlyphs.generated.ts）ので、以前ほど整数倍率にこだわらなくても
+     字が砂嵐状に崩れる心配は無い。 */
+  #home .cont02 td.t-cart,
+  #home .cont02 th.t-cart {
+    width: 162px;
+  }
+  #home .cont02 td.t-cart canvas {
+    width: 154px !important;
+    height: 112px !important;
+  }
+  #home .cont02 td.t-ttl,
+  #home .cont02 th.t-ttl {
+    width: auto;
+  }
+  #home .cont02 td.t-state,
+  #home .cont02 th.t-state {
+    width: 42px;
+  }
+  /* 「工事中」の札は12pxの行に入れるので、ひとまわり小さくする */
+  #home .cont02 .kouji {
+    font-size: 9px;
+    border-width: 1px;
+    line-height: 13px;
+    padding: 0 1px;
+  }
+}
+
+/* ── 携帯では字のなめらかさを戻す ─────────────────────
+   body の -webkit-font-smoothing:none（2003年の顔）は、パソコンの
+   低密度な画面では効いても、携帯の高密度な画面では逆効果になる。
+   画数の細い字（更新履歴などの地の文）が、なめらかにしないぶん
+   ところどころ欠けて見える（実機報告あり）。
+   デザインの芯は動かさず、携帯幅のときだけなめらかさを戻す。 */
+@media screen and (max-width: 620px) {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ── 携帯だけ文字を小さくする箇所 ─────────────────── */
+@media screen and (max-width: 620px) {
+  /* 「ふりっぷとは」の本文2行。さらに2px小さく(11px→9px) */
+  #home .def-body {
+    font-size: 9px;
+  }
+  /* 「背景をかえる」のリード文 */
+  #home .bgpick-lead {
+    font-size: 12px;
+  }
+  /* リード文の点滅（★ふりっぷは随時ふえていきます★） */
+  #home .lead .blink {
+    font-size: 14px;
+  }
+  /* 更新履歴の1行（このページ「ふりっぷ一覧」をつくりました。など） */
+  #home .rireki dd {
+    font-size: 14px;
+  }
+}
+
+/* ── 携帯だけの強制改行 ────────────────────────────
+   src/components/retro/MobileBreak.tsx が置く br。パソコンでは
+   消しておき（display:none）、携帯幅になったら普通の br として効かせる。
+   ※ class名はコンポーネント側と対で決めているので、変えるなら両方直す。 */
+.mobile-break {
+  display: none;
+}
+@media screen and (max-width: 620px) {
+  .mobile-break {
+    display: inline;
+  }
+}
+@media screen and (max-width: 480px) {
+  #home .header {
+    margin-top: 20px;
+  }
+  #home .pagettl {
+    margin-top: 30px;
+  }
+  #home .pagettl .wa {
+    font-size: 30px !important;
+  }
+  #home .marquee {
+    height: 38px;
+    font-size: 18px;
+  }
+  #home .marquee p {
+    height: 30px;
+    line-height: 30px;
+  }
+  #home section {
+    padding: 34px 12px 0;
+  }
+  #home .sec .wa {
+    font-size: 26px !important;
+  }
+  #home .moku {
+    width: 100%;
+  }
+  #home .cont02 table th,
+  #home .cont02 table td {
+    font-size: 12px;
+  }
+  .t-ttl {
+    width: auto;
+  }
+  .t-state {
+    width: 48px;
+  }
+  #home .rireki dt {
+    float: none;
+    width: auto;
+  }
+  #home .rireki dd {
+    margin-left: 20px;
+  }
+  #home .def td {
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+  /* 10個を細い版面に並べると「｜」が行の端に落ちる。
+     狭いときは区切りをやめて、2つずつ同じ幅でならべる */
+  #home .bgpick-bar {
+    display: none;
+  }
+  /* 2行に切ってあるのを、狭いときは1つの流れに戻す。
+     display:contents で <p> の箱を消すと、10個が続けてならんで
+     5行目まで隙間なく2列に入る（行のままだと5個目が1つで残る） */
+  #home .bgpick-row {
+    display: contents;
+  }
+  #home .bgpick {
+    max-width: 320px;
+    margin: 0 auto;
+  }
+  #home .bgpick-row > span {
+    display: inline-block;
+    width: 50%;
+    text-align: left;
+  }
+  #home .bgpick-one {
+    display: inline-block;
+    margin: 5px 0;
+  }
+  #home .bgpick-one i {
+    width: 44px;
+    height: 28px;
+  }
+}
+
+/* ── 仕掛け ─────────────────────────────────────
+ * このページには「ひっくり返す」しかけが3つ隠してある
+ * （src/components/retro/Tricks.tsx。あちらは class を足し引きするだけ）。
+ *
+ *   1 ページ名「ふりっぷ」を1字ずつ押す   → 4字そろうとページごと天地が逆さ
+ *   2 キーボードで flip と打つ             → 一覧表が上下ひっくり返る
+ *   3 電光掲示板を掴んで引っぱる           → 掲示板が裏返って逆から流れる
+ *
+ * 起こることは3つとも scaleY(-1) だけ。ほかの手は使っていない。
+ * どれも body にクラスが付いてから効くので、見つけていない人の版面は動かない。
+ */
+
+/* ── 仕掛け1 ──────────────────────────────────── */
+
+/* 押せる気配。リンクと同じGIFのカーソルに変わるだけ。説明は出さない */
+#home .pagettl .ttl-c[data-flip-index] {
+  cursor: url(/hp/cursor_on.gif), pointer;
+  /* 何度も押すところなので、字が選ばれて青くならないようにしておく */
+  -webkit-user-select: none;
+  user-select: none;
+  transition: transform 0.18s linear;
+}
+#home .pagettl .ttl-c[data-flip-index].is-upsidedown {
+  transform: scaleY(-1);
+}
+
+/* 4字そろうとページごと逆さになる。中のWordArtには触らず、いちばん外を返すだけ */
+#home.fl-upside {
+  transform: scaleY(-1);
+  transform-origin: 50% 50%;
+}
+/* 壁紙も次の色に回る。#home に class と属性を重ねてあるので、
+   上の #home{background:url(bg.gif)} にも #home[data-fl-bg] にも勝つ。
+   回る色は「背景をかえる」の9色ぜんぶ（Tricks.tsx の WALLS と同じならび） */
+#home.fl-upside[data-fl-wall="wakaba"] {
+  background-image: url(/hp/bg_wakaba.gif);
+}
+#home.fl-upside[data-fl-wall="mint"] {
+  background-image: url(/hp/bg_mint.gif);
+}
+#home.fl-upside[data-fl-wall="mizu"] {
+  background-image: url(/hp/bg_mizu.gif);
+}
+#home.fl-upside[data-fl-wall="sky"] {
+  background-image: url(/hp/bg_sky.gif);
+}
+#home.fl-upside[data-fl-wall="sumire"] {
+  background-image: url(/hp/bg_sumire.gif);
+}
+#home.fl-upside[data-fl-wall="sakura"] {
+  background-image: url(/hp/bg_sakura.gif);
+}
+#home.fl-upside[data-fl-wall="peach"] {
+  background-image: url(/hp/bg_peach.gif);
+}
+#home.fl-upside[data-fl-wall="anzu"] {
+  background-image: url(/hp/bg_anzu.gif);
+}
+#home.fl-upside[data-fl-wall="hai"] {
+  background-image: url(/hp/bg_hai.gif);
+}
+
+/* ── 仕掛け2 ──────────────────────────────────── */
+
+/* 行の入れ替えはJSがやる。ここは「ぺたんと閉じて、また開く」ひと呼吸と、
+   ならび順のしるし（▼）の向きだけ */
+#home .cont02 table,
+#home .yarrow {
+  transition: transform 0.22s linear;
+}
+#home.fl-shut .cont02 table {
+  transform: scaleY(0.02);
+}
+#home.fl-order .yarrow {
+  transform: scaleY(-1);
+}
+/* ならび順の言い方も入れかわる。初見では「ふるい順」だけが出ている */
+#home .order-b {
+  display: none;
+}
+#home.fl-order .order-a {
+  display: none;
+}
+#home.fl-order .order-b {
+  display: inline;
+}
+
+/* ── 仕掛け3 ──────────────────────────────────── */
+
+#home .marquee {
+  /* 掴める気配。ここもリンクと同じGIFのカーソル */
+  cursor: url(/hp/cursor_on.gif), grab;
+  transition: transform 0.12s linear;
+}
+/* 引っぱっている間は手に付いてくる。ここは補間しない（1:1で付いてくる） */
+#home .marquee.fl-pull {
+  transform: translateY(var(--fl-pull, 0px));
+  transition: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+#home.fl-board .marquee {
+  transform: scaleY(-1);
+}
+#home.fl-board .marquee.fl-pull {
+  transform: translateY(var(--fl-pull, 0px)) scaleY(-1);
+}
+/* 裏返ったら、字も逆から流れる */
+#home.fl-board .marquee p {
+  animation-direction: reverse;
+}
+
+/* ── 動きを減らす設定のとき ───────────────────────
+   間を補間しない。起きること（返る・裏返る・並びが逆になる）は同じまま残す。 */
+@media (prefers-reduced-motion: reduce) {
+  #home .pagettl .ttl-c[data-flip-index],
+  #home .cont02 table,
+  #home .yarrow,
+  #home .marquee {
+    transition: none;
+  }
+}

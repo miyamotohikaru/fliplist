@@ -1,0 +1,13 @@
+node_modules/
+.next/
+out/
+build/
+*.tsbuildinfo
+next-env.d.ts
+.vercel
+.DS_Store
+.env*
+!.env.example
+
+# 見た目の検分用に撮った画像。作業の途中経過なので持ち込まない
+shots/

@@ -1,0 +1,11 @@
+import puppeteer from "puppeteer-core";
+const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const b = await puppeteer.launch({ executablePath: CHROME, args: ["--headless=new", "--hide-scrollbars"] });
+const p = await b.newPage();
+await p.setViewport({ width: 393, height: 1400, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+await p.goto(process.env.FLIP_URL ?? "http://localhost:3020/", { waitUntil: "networkidle0" });
+await new Promise((r) => setTimeout(r, 600));
+await p.screenshot({ path: "shots/ph-top.png" });
+const h = await p.evaluate(() => document.documentElement.scrollHeight);
+console.log("頁の高さ", h);
+await b.close();
