@@ -91,6 +91,11 @@ export default function Page() {
         </h1>
 
         <p className="lead">
+          {/* 何の仲間なのかを先に言う1行。「ふりっぷとは」の節の見出しに使っている
+              のと同じ文言を持ってきている。二か所で言い方がずれないように、
+              文字を打ち直さず FLIP_DEFINITION.lead をそのまま出す。 */}
+          {FLIP_DEFINITION.lead}
+          <br />
           <BreakText text="こす.くまがつくった、◆小さなあそびと実験のもくじです。" />
           <br />
           <span className="blink">★ふりっぷは随時ふえていきます★</span>
