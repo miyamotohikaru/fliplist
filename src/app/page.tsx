@@ -130,10 +130,12 @@ export default function Page() {
             このページの用はこれなので、いちばん先に置く。 */}
         <section id="list">
           {/* このページの用なので、節の見出しはここだけ大きい。
-              色は他の節と同じ深緑（白い縁が付いているので、壁紙を10色どれにかえても読める）。
-              金と水色は薄い壁紙の上で弱くなるので、このページでは使わない */}
+              組みは4つの節ぜんぶ共通で、会社HPの heading-flip.png
+              （FLIP事業について）と同じ cyan＝12°の傾き＋太い色つきの縁＋べた塗り。
+              色は globals.css の --flip-sec-fill / --flip-sec-line が
+              壁紙10色ぶん持っている。太さは字が小さいぶんだけ手本より足してある。 */}
           <h3 className="sec sec--main">
-            <Heading variant="green" size={50}>
+            <Heading variant="cyan" size={50} weight={600}>
               ふりっぷ一覧表
             </Heading>
           </h3>
@@ -180,7 +182,7 @@ export default function Page() {
             日付の頭の点は会社HPと同じ矢印のGIF。 */}
         <section id="rireki">
           <h3 className="sec">
-            <Heading variant="green" size={36}>
+            <Heading variant="cyan" size={36} weight={600}>
               更新履歴
             </Heading>
           </h3>
@@ -213,7 +215,7 @@ export default function Page() {
             中の4行はこす.くまの言葉なので一字も変えない。 */}
         <section id="toha">
           <h3 className="sec">
-            <Heading variant="green" size={36}>
+            <Heading variant="cyan" size={36} weight={600}>
               ふりっぷとは
             </Heading>
           </h3>
@@ -243,7 +245,7 @@ export default function Page() {
         {/* ── 背景をかえる ───────────────────────── */}
         <section id="bg">
           <h3 className="sec">
-            <Heading variant="green" size={36}>
+            <Heading variant="cyan" size={36} weight={600}>
               背景をかえる
             </Heading>
           </h3>
