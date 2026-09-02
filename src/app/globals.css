@@ -248,6 +248,14 @@ a {
   --wa-sx: 1 !important;
   --wa-skew: 0 !important;
   --wa-weight: 700 !important;
+  /* 書体も手本にそろえる。**手本のバナーは font-family を1つも書いていない**
+     ＝ブラウザ既定の和文フォントで出ている（Macならヒラギノ角ゴシック、
+     Windowsなら游ゴシックなど、見る人の機械まかせ）。
+     WordArt.tsx は "Hiragino Sans" を先頭にした指定を持っているので、
+     ここだけ外して body から受け継ぐ。body には（本物と同じく）書体を書いていないので、
+     結果としてどの機械でも手本と同じ書体で出る。
+     ※節の見出し(.sec)は手本が「画像」なので、あちらは WordArt の指定のままでよい。 */
+  font-family: inherit !important;
 }
 #home .pagettl .wa__ink {
   text-shadow:
