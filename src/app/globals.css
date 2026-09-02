@@ -229,28 +229,62 @@ a {
   --flip-ttl: #0000cc;
 }
 
-/* ページ名は1色べた塗り（heading-company と同じ組み）。塗りだけ差し替える */
-#home .pagettl .wa {
-  --wa-fill-color: var(--flip-ttl) !important;
-}
-/* 節の見出しは上が明るく下が暗い縦グラデ（ttl_news.gif の組み）。
-   手本の緑は上 #2aaf20 → 下 #0a6404 で、下端が上端の56%の暗さ。
-   その落ち方だけもらって、色は --flip-ttl から作る。
+/* ページ名「ふりっぷ一覧」は、会社HP(kosukuma.com)の ★ふりっぷ一覧★ バナーと
+   **同じもの**にしてある。あちらのバナーからこのページへ飛んでくるので、
+   同じ顔で出迎える。だから壁紙をかえても、ここだけは色が変わらない。
 
-   @supports で囲ってあるのは、節の見出しの字が
-   「透明にして background-clip:text で塗る」作りだから。
-   color-mix を知らないブラウザだと --wa-fill-image が丸ごと無効になり、
-   塗るものが無くなって**字が消える**。囲っておけば、その場合は
-   WordArt.tsx が書いた元の緑のグラデがそのまま残る。 */
-@supports (color: color-mix(in srgb, red 50%, blue)) {
-  #home .sec .wa {
-    --wa-fill-image: linear-gradient(
-      180deg,
-      var(--flip-ttl) 0%,
-      color-mix(in srgb, var(--flip-ttl) 78%, #000000) 50%,
-      color-mix(in srgb, var(--flip-ttl) 56%, #000000) 100%
-    ) !important;
-  }
+   手本のバナーの指定（64px のとき）:
+     font-weight: bold; font-style: italic; letter-spacing: 2px;
+     text-shadow: 3px 3px 0 #fff, 4px 4px 0 #000,
+                  -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+   白を右下 3px にずらして敷き、その上に黒を 4px。まわりに 1px の黒。
+   px のままだと級数をかえたときに崩れるので、64 で割って em にしてある
+   （3/64=0.0469em、4/64=0.0625em、1/64=0.0156em）。
+
+   傾きも手本にそろえる。バナーは font-style:italic をそのまま使っていて、
+   Chrome の合成イタリック＝14度。WordArt は既定で 12度へ寄せる補正を入れるので、
+   ここではその補正を 0 にして 14度のまま出す。横の伸ばしも 1 倍（手本に無い）。 */
+#home .pagettl .wa {
+  --wa-sx: 1 !important;
+  --wa-skew: 0 !important;
+  --wa-weight: 700 !important;
+}
+#home .pagettl .wa__ink {
+  text-shadow:
+    0.0469em 0.0469em 0 #ffffff,
+    0.0625em 0.0625em 0 #000000,
+    -0.0156em -0.0156em 0 #000000,
+    0.0156em -0.0156em 0 #000000,
+    -0.0156em 0.0156em 0 #000000,
+    0.0156em 0.0156em 0 #000000 !important;
+}
+/* 1字ずつの色。手本のバナーは ★ふ り っ ぷ 一 覧★ の8文字ぶんで、
+   両端の★を除いた6色をそのまま使う */
+#home .pagettl .ttl-c:nth-child(1) .wa { --wa-fill-color: #ec5528 !important; } /* ふ だいだい */
+#home .pagettl .ttl-c:nth-child(2) .wa { --wa-fill-color: #377e22 !important; } /* り みどり */
+#home .pagettl .ttl-c:nth-child(3) .wa { --wa-fill-color: #0000f5 !important; } /* っ あお */
+#home .pagettl .ttl-c:nth-child(4) .wa { --wa-fill-color: #75147c !important; } /* ぷ むらさき */
+#home .pagettl .ttl-c:nth-child(5) .wa { --wa-fill-color: #ea33f7 !important; } /* 一 マゼンタ */
+#home .pagettl .ttl-c:nth-child(6) .wa { --wa-fill-color: #377e7f !important; } /* 覧 あおみどり */
+/* 節の見出し4つは、会社HPの heading-flip.png（FLIP事業について）と同じ組み。
+   もとは ttl_news.gif の組み（直立・白い縁・縦グラデ）で、手本ともページ名とも
+   別物に見えていた。2026-09-02 に手本へそろえた。
+
+   色は**原色1組にそろえてある**。手本の見出し画像は #00ff00 / #00ffff / #ff0000 と
+   どれも 255 と 0 だけでできた原色で、あの鮮やかさはそこから来ている。
+   中途半端に濁らせると、隣に置いたとき手本と別物に見える。
+     塗り #0000ff（純青）  縁 #ffff00（その真反対の純黄）
+   地色とのコントラストは7.7、塗りと縁は8.0で、10色の壁紙どれでも読める。
+
+   **壁紙をかえても、この4つとページ名は色が変わらない。**
+   原色は12色ぶんしか無く、しかも明るい原色（黄・緑・シアン）は薄い壁紙の上で
+   字として読めないので、壁紙10色に色相を追随させると原色から外れてしまう。
+   壁紙に連動するのは、いまは本文まわりだけ。
+
+   縁の太さは手本の比率のまま（WordArt の cyan＝font-size の 2.7%）。 */
+#home .sec .wa {
+  --wa-fill-color: #0000ff !important;
+  --wa-line: #ffff00 !important;
 }
 
 /* 本文の幅。本物の #container・.cont01 が1000px、表が800pxなので、そのあいだ */
@@ -282,11 +316,12 @@ a {
   border-bottom: solid 3px orangered;
   line-height: 1;
 }
-/* 1字ずつ別の要素。WordArt は字面を横に1.093倍しているので、
-   そのままならべると隣とくっつく。2pxずつ逃がしておく */
+/* 1字ずつ別の要素。手本のバナーは letter-spacing:2px なので、
+   1字あたり左右1pxずつでちょうど同じ字間になる。
+   （横に1.093倍する組みをやめて等倍にしたので、3pxも逃がす必要が無くなった） */
 #home .pagettl .ttl-c {
   display: inline-block;
-  margin: 0 3px;
+  margin: 0 1px;
 }
 
 #home .lead {
