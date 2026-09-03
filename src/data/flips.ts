@@ -149,6 +149,21 @@ export const FLIPS: Flip[] = [
     shell: "orange",
   },
   {
+    slug: "mathscape",
+    // 「すうしきのぜっけい」の頭2文字は SZ だが精神病図鑑が使っている。
+    // 世界のFLIP図鑑（HVC-FA）と同じで、欧文表記のほうから2文字を取る。
+    code: "HVC-MS",
+    title: "数式の絶景",
+    kana: "すうしきのぜっけい",
+    romaji: "MATHSCAPE",
+    desc: "画像も3Dも音源も使わず◇数式だけの風景を歩けます",
+    url: "https://flip5-1.vercel.app",
+    status: "wip",
+    date: "2026-09-03",
+    owner: "宮本",
+    shell: "prussian",
+  },
+  {
     slug: "yuragi",
     code: "HVC-YR",
     title: "ゆらぎの拡張機能",
