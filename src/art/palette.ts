@@ -168,6 +168,20 @@ export const SHELLS: Record<string, ShellColors> = {
     emboss: "#a4dbf6",
     recess: "#2c6288",
   },
+  // 藍。16本ぶんの外装を作ったとき、暗い青は navy（紺）1色しか無かった。
+  // skyblue と同じ色相のまま明度だけ 85% → 49% に落としたところに空きがあるので、
+  // そこを1色ぶん埋める。紺より緑に寄っていて、面はもっと濃い。
+  // 黒（#302c39）より暗くはしない――palette 冒頭に書いたとおり、
+  // 暗すぎる外装は階調が潰れて「形の読めない板」になる。
+  prussian: {
+    face: "#1d5a7e",
+    light: "#2d7399",
+    lightest: "#468fb4",
+    dark: "#124258",
+    edge: "#082733",
+    emboss: "#4d96ba",
+    recess: "#0c3241",
+  },
   navy: {
     face: "#2b3f7a",
     light: "#3f5695",
