@@ -116,7 +116,7 @@ export const FLIPS: Flip[] = [
     romaji: "MOTH TO A FLAME",
     desc: "焚き火のまわりにきれいな円を◆描いて競うゲーム",
     url: "https://moth-flame.kosukuma.com/",
-    status: "released",
+    status: "done",
     date: "2026-09-05",
     owner: "宮本",
     shell: "navy",
