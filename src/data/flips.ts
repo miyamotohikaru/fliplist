@@ -2,6 +2,18 @@
 // 出典: こす.くま 進行管理スプレッドシート
 // https://docs.google.com/spreadsheets/d/1RM2gRMeJ6mcxJxplYKXFKPl4AEpz3u19an96h5zyOCE/
 // 行の並び・タイトル・URL・内容はシートの内容をそのまま採用している（勝手に足さない）。
+//
+// **並びはシートの「リリース日」の順。** リリースは基本、毎週土曜日の20時
+// （2026-09-05 ユーザー確認）。だから新しい1本を公開するときは、
+//   1. その行の status を "released" にする
+//   2. url が入っているか確かめる
+// の2つだけでよい。表示の総スイッチは util.ts の ALL_UNDER_CONSTRUCTION で、
+// 2026-09-05 に false へ戻してある（それまでは全本を工事中にしていた）。
+//
+// **シートには「日陰ナビ」(2026-09-19) があるが、ここには入っていない。**
+// カセットのラベル絵は1件ごとに固有の作図プログラム（src/art/labels/）が要るので、
+// 絵を描かないと足せない。足すときはラベル絵から。そのぶん7番以降の番号は
+// シートと1つずれている（6番までは一致）。
 
 export type FlipStatus = "released" | "done" | "wip" | "idea";
 
@@ -58,19 +70,6 @@ export const FLIPS: Flip[] = [
     shell: "white",
   },
   {
-    slug: "friends",
-    code: "HVC-TG",
-    title: "ともだちジェネレーター",
-    kana: "ともだちじぇねれーたー",
-    romaji: "FRIEND GENERATOR",
-    desc: "アップロードされた写真に◆友達を増やします",
-    url: "https://ineedfriends.kosukuma.com/",
-    status: "released",
-    date: "2026-07-18",
-    owner: "すのはら",
-    shell: "skyblue",
-  },
-  {
     slug: "words",
     code: "HVC-KJ",
     title: "存在しない言葉辞典",
@@ -79,7 +78,7 @@ export const FLIPS: Flip[] = [
     desc: "世の中にない言葉を◆辞書に登録できます",
     url: "https://nonexistent-words-dictionary.kosukuma.com/",
     status: "released",
-    date: "2026-07-25",
+    date: "2026-08-08",
     owner: "宮本",
     shell: "maroon",
   },
@@ -92,7 +91,7 @@ export const FLIPS: Flip[] = [
     desc: "スマホを高く投げた人が◆勝つゲーム",
     url: "https://throwtowin.kosukuma.com/",
     status: "released",
-    date: "2026-08-02",
+    date: "2026-08-15",
     owner: "すのはら",
     shell: "yellow",
   },
@@ -104,8 +103,8 @@ export const FLIPS: Flip[] = [
     romaji: "BLUNT BEAR",
     desc: "チャット形式で◆こすくまくんと遊べます",
     url: "https://osyaberi.kosukuma.com/",
-    status: "done",
-    date: "2026-08-08",
+    status: "released",
+    date: "2026-08-29",
     owner: "すのはら",
     shell: "pink",
   },
@@ -117,8 +116,8 @@ export const FLIPS: Flip[] = [
     romaji: "MOTH TO A FLAME",
     desc: "焚き火のまわりにきれいな円を◆描いて競うゲーム",
     url: "https://moth-flame.kosukuma.com/",
-    status: "done",
-    date: "2026-08-15",
+    status: "released",
+    date: "2026-09-05",
     owner: "宮本",
     shell: "navy",
   },
@@ -131,22 +130,9 @@ export const FLIPS: Flip[] = [
     desc: "アップロードされた写真が◇様々な生物の視点で見れます",
     url: "https://creature-vision.kosukuma.com/",
     status: "done",
-    date: "2026-08-22",
+    date: "2026-09-12",
     owner: "宮本",
     shell: "green",
-  },
-  {
-    slug: "hitodasuke",
-    code: "HVC-IH",
-    title: "インスタント人助け",
-    kana: "いんすたんとひとだすけ",
-    romaji: "INSTANT RESCUE",
-    desc: "近くの人に助けを求めたり◆駆けつけたりできます",
-    url: "https://hitodasukekimotieeeee.kosukuma.com/",
-    status: "wip",
-    date: "2026-08-29",
-    owner: "すのはら",
-    shell: "orange",
   },
   {
     slug: "yuragi",
@@ -156,9 +142,9 @@ export const FLIPS: Flip[] = [
     romaji: "YURAGI",
     desc: "ブラウザのテキストを◆1/fゆらぎで揺らします",
     url: "",
-    status: "wip",
-    date: "2026-09-05",
-    owner: "宮本",
+    status: "done",
+    date: "2026-09-26",
+    owner: "すのはら",
     shell: "gray",
   },
   {
@@ -170,7 +156,7 @@ export const FLIPS: Flip[] = [
     desc: "なくなった職業を◆年表や系譜からたどれます",
     url: "https://vanished-jobs-archive.vercel.app",
     status: "wip",
-    date: "2026-09-26",
+    date: "2026-10-03",
     owner: "宮本",
     shell: "brown",
   },
@@ -183,22 +169,9 @@ export const FLIPS: Flip[] = [
     desc: "常識をひっくり返した企画や◆作品を集めています",
     url: "https://flip-archive.vercel.app",
     status: "wip",
-    date: "2026-10-03",
-    owner: "宮本",
-    shell: "cream",
-  },
-  {
-    slug: "values",
-    code: "HVC-KI",
-    title: "価値観一覧図鑑",
-    kana: "かちかんいちらんずかん",
-    romaji: "VALUES ARCHIVE",
-    desc: "",
-    url: "",
-    status: "idea",
     date: "2026-10-10",
     owner: "宮本",
-    shell: "purple",
+    shell: "cream",
   },
   {
     slug: "kikiippatsu",
@@ -210,10 +183,23 @@ export const FLIPS: Flip[] = [
     romaji: "KIKIIPPATSU",
     desc: "世界中の人と1000個の穴に◆剣を刺していくゲーム",
     url: "https://kosukuma-kikiippatsu.vercel.app",
-    status: "wip",
+    status: "done",
     date: "2026-10-17",
     owner: "宮本",
     shell: "red",
+  },
+  {
+    slug: "values",
+    code: "HVC-KI",
+    title: "価値観一覧図鑑",
+    kana: "かちかんいちらんずかん",
+    romaji: "VALUES ARCHIVE",
+    desc: "",
+    url: "",
+    status: "idea",
+    date: "2026-10-24",
+    owner: "すのはら",
+    shell: "purple",
   },
   {
     slug: "ads",
@@ -224,9 +210,22 @@ export const FLIPS: Flip[] = [
     desc: "",
     url: "",
     status: "wip",
-    date: "2026-10-24",
-    owner: "川上",
+    date: "2026-10-31",
+    owner: "すのはら",
     shell: "lime",
+  },
+  {
+    slug: "friends",
+    code: "HVC-TG",
+    title: "ともだちジェネレーター",
+    kana: "ともだちじぇねれーたー",
+    romaji: "FRIEND GENERATOR",
+    desc: "アップロードされた写真に◆友達を増やします",
+    url: "https://ineedfriends.kosukuma.com/",
+    status: "done",
+    date: "2026-11-07",
+    owner: "すのはら",
+    shell: "skyblue",
   },
   {
     slug: "diagnosis",
@@ -237,9 +236,22 @@ export const FLIPS: Flip[] = [
     desc: "診断名がいつ生まれ◆どう変わったかを記録しています",
     url: "https://diagnosis-archive-001.vercel.app/",
     status: "wip",
-    date: "2026-11-14",
+    date: "2026-11-07",
     owner: "宮本",
     shell: "slate",
+  },
+  {
+    slug: "hitodasuke",
+    code: "HVC-IH",
+    title: "インスタント人助け",
+    kana: "いんすたんとひとだすけ",
+    romaji: "INSTANT RESCUE",
+    desc: "近くの人に助けを求めたり◆駆けつけたりできます",
+    url: "https://hitodasukekimotieeeee.kosukuma.com/",
+    status: "wip",
+    date: "2026-11-14",
+    owner: "すのはら",
+    shell: "orange",
   },
 ];
 
