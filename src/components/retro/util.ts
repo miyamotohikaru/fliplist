@@ -9,9 +9,12 @@ export function jpDate(iso: string): string {
 /**
  * 一時的な総スイッチ。true のあいだは status や url に関係なく全16本を
  * 「工事中」扱いにし、カセットの絵も名前も押せなくする（データ自体は
- * 変えない）。公開できる状態になったら false に戻す。
+ * 変えない）。**2026-09-05 に false へ戻した**（それまでは全本工事中だった）。
+ *
+ * これ以降、公開されるかどうかは flips.ts の status と url だけで決まる。
+ * status を "released" にして url を入れれば、その1本が公開中になる。
  */
-const ALL_UNDER_CONSTRUCTION = true;
+const ALL_UNDER_CONSTRUCTION = false;
 
 /** いま遊べるもの。公開済みで行き先があるものだけ */
 export function isOpen(f: Flip): boolean {
@@ -62,4 +65,10 @@ export const HISTORY: LogLine[] = [
     text: `「${f.title}」をくわえました。`,
     slug: f.slug,
   })),
-];
+]
+  // 節の下に「※あたらしいものが上です」と書いてあるので、日付の新しい順にそろえる。
+  // ページをつくった日(2026-08-12)より新しい公開が出てくると、
+  // それを先頭に置いたままでは順番が狂う（2026-09-05 の公開で表に出た）。
+  // 同じ日付のときは、あとから足したものが上（公開のほうがページ作成より下に来ない）。
+  .slice()
+  .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
