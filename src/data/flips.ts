@@ -112,7 +112,7 @@ export const FLIPS: Flip[] = [
   {
     slug: "moth",
     code: "HVC-HI",
-    title: "飛んで火入る虫",
+    title: "飛んで火に入る虫",
     kana: "とんでひいるむし",
     romaji: "MOTH TO A FLAME",
     desc: "焚き火のまわりにきれいな円を◆描いて競うゲーム",
