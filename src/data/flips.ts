@@ -135,6 +135,26 @@ export const FLIPS: Flip[] = [
     shell: "green",
   },
   {
+    // シートの「内容」が空なので、実物を見て補った（ビルの影を計算して
+    // 日陰の多い徒歩ルートを案内するもの）。
+    // **ラベル絵はまだ無い。** 1件ごとに固有の作図プログラム（src/art/labels/）が
+    // 要るが、2026-09-13 にユーザーの指示で「サムネはこのまま」＝
+    // 工事中の無地のカセットのままにしてある。描くときは他の16枚と同じやり方で。
+    slug: "hiyakeitai",
+    code: "HVC-HN",
+    title: "日陰ナビ",
+    kana: "ひかげなび",
+    romaji: "SHADE NAVI",
+    desc: "ビルの影を計算して◇日陰の多い道を案内します",
+    url: "https://hiyakeitai.kosukuma.com/",
+    status: "done",
+    date: "2026-09-19",
+    owner: "すのはら",
+    // 外装は16色をひととおり使い切っているので、ここから先は色が重なる。
+    // 日陰なので青みのある灰（slate）。前後の green / gray とは見分けがつく。
+    shell: "slate",
+  },
+  {
     slug: "yuragi",
     code: "HVC-YR",
     title: "ゆらぎの拡張機能",
