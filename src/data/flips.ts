@@ -129,7 +129,7 @@ export const FLIPS: Flip[] = [
     romaji: "CREATURE VISION",
     desc: "アップロードされた写真が◇様々な生物の視点で見れます",
     url: "https://creature-vision.kosukuma.com/",
-    status: "done",
+    status: "released",
     date: "2026-09-12",
     owner: "宮本",
     shell: "green",
