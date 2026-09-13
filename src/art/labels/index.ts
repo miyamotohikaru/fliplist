@@ -7,6 +7,7 @@ import { art as art_throw } from "./throw";
 import { art as art_osyaberi } from "./osyaberi";
 import { art as art_moth } from "./moth";
 import { art as art_creature } from "./creature";
+import { art as art_hiyakeitai } from "./hiyakeitai";
 import { art as art_hitodasuke } from "./hitodasuke";
 import { art as art_yuragi } from "./yuragi";
 import { art as art_vanished_jobs } from "./vanished-jobs";
@@ -26,6 +27,7 @@ const ALL: LabelArt[] = [
   art_osyaberi,
   art_moth,
   art_creature,
+  art_hiyakeitai,
   art_hitodasuke,
   art_yuragi,
   art_vanished_jobs,
