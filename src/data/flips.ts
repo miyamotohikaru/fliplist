@@ -140,7 +140,7 @@ export const FLIPS: Flip[] = [
     title: "日陰ナビ",
     kana: "ひかげなび",
     romaji: "SHADE NAVI",
-    desc: "日なたを避けて、◆気持ちよく歩こう",
+    desc: "最短と日陰で、◆歩く道を案内します。",
     url: "https://hiyakeitai.kosukuma.com/",
     status: "released",
     date: "2026-09-19",
