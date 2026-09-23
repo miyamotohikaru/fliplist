@@ -9,11 +9,6 @@
 //   2. url が入っているか確かめる
 // の2つだけでよい。表示の総スイッチは util.ts の ALL_UNDER_CONSTRUCTION で、
 // 2026-09-05 に false へ戻してある（それまでは全本を工事中にしていた）。
-//
-// **シートには「日陰ナビ」(2026-09-19) があるが、ここには入っていない。**
-// カセットのラベル絵は1件ごとに固有の作図プログラム（src/art/labels/）が要るので、
-// 絵を描かないと足せない。足すときはラベル絵から。そのぶん7番以降の番号は
-// シートと1つずれている（6番までは一致）。
 
 export type FlipStatus = "released" | "done" | "wip" | "idea";
 
@@ -145,9 +140,9 @@ export const FLIPS: Flip[] = [
     title: "日陰ナビ",
     kana: "ひかげなび",
     romaji: "SHADE NAVI",
-    desc: "ビルの影を計算して◇日陰の多い道を案内します",
+    desc: "日なたを避けて、◆気持ちよく歩こう",
     url: "https://hiyakeitai.kosukuma.com/",
-    status: "done",
+    status: "released",
     date: "2026-09-19",
     owner: "すのはら",
     // 外装は16色をひととおり使い切っているので、ここから先は色が重なる。
