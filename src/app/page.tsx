@@ -98,7 +98,7 @@ export default function Page() {
           <br />
           <BreakText text="こす.くまがつくった、◆小さなあそびと実験のもくじです。" />
           <br />
-          <span className="blink">※ふりっぷは随時ふえていきます。</span>
+          <span className="blink">★ふりっぷは随時ふえていきます★</span>
         </p>
         <p className="lastmod">最終更新：{jpDate(PAGE_MADE)}</p>
 
@@ -145,7 +145,7 @@ export default function Page() {
               text={`※いまあそべるのは${OPENED.length}本です。◆　これからできるものも、できた順にならべてあります。`}
             />
             <br />
-            <BreakText text="※ふりっぷは随時ふえていきますので、◆　番号も下へふえていきます。" />
+            <BreakText text="※ふりっぷは随時ふえていきます。" />
           </p>
           {/* ならび順のしるし。表がひっくり返ると▼が▲になって、
               言い方のほうも入れかわる（どちらもここに書いてあって、CSSで出し入れする）。
