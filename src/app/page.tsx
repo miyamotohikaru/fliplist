@@ -98,7 +98,7 @@ export default function Page() {
           <br />
           <BreakText text="こす.くまがつくった、◆小さなあそびと実験のもくじです。" />
           <br />
-          <span className="blink">★ふりっぷは随時ふえていきます★</span>
+          <span className="blink">※ふりっぷは随時ふえていきます。</span>
         </p>
         <p className="lastmod">最終更新：{jpDate(PAGE_MADE)}</p>
 

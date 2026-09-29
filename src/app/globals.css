@@ -905,7 +905,7 @@ a {
   #home .bgpick-lead {
     font-size: 12px;
   }
-  /* リード文の点滅（★ふりっぷは随時ふえていきます★） */
+  /* リード文の点滅（※ふりっぷは随時ふえていきます。） */
   #home .lead .blink {
     font-size: 14px;
   }
