@@ -1,33 +1,40 @@
 import type { LabelArt } from "./types";
 import type { PixelGfx } from "../gfx";
-import { JP_SIZE, JP_TH, ascent, jpRow } from "../jptitle";
+import { jpRow } from "../jptitle";
 
 // なかよしケーキシミュレーター — ケーキを好きに飾って、
-// みんなで「公平に」切り分ける。飾りが偏っていても、取り分が揃うように切る。
+// みんなで「公平に」切り分ける。
 //
-// 図の骨組み: 上の帯がベージュの卓で、題字「なかよしケーキ」を
-//   13pxで2行（なかよし／ケーキ）。下はお皿にのった丸いホールケーキ（斜め上から）。
-//   上面に苺が散らしてあり、ふちには絞りの粒がぐるりと並ぶ。
-// 動くもの: 前半は放射に6等分の切り目が入り、それぞれのピースに
-//   苺がひとつずつ載る＝「なかよし」に分けた状態。後半は切る前のホール。
-//   止め絵（t=0）で切り分けた姿が見える順にしてある。
+// 図の手本は、実物で飾り終えたケーキ（2026-10-18 ユーザー提供）。
+//   白いホールケーキを斜め上から。上面のふちはうすいピンクのクリーム。
+//   ふちに沿って苺がぐるりと並び、あいだに青いブルーベリーと
+//   ピンクのラズベリー。上面のまんなかには、チョコの線で
+//   寝そべったこすくまくん。お皿にも苺とブルーベリーがこぼれている。
+// 動くもの: 上面のアラザン（銀の粒）がちかちか光る。
+//
+// 題字は「なかよし」だけを16px（この書体の設計級数）で1行。
+// 「ケーキ」は絵が言うので入れない。そのぶん丈をケーキに回す。
 
-const TABLE = "#e6d3b6";
-const TABLE_G = "#d9c3a0";
+const TABLE = "#f1e7d6";
 const INK = "#4a2f1e";
-const INK_SH = "#f4e8d4";
+const INK_SH = "#fbf5ea";
 
 const PLATE = "#fbf8f2";
-const PLATE_D = "#d8d0c2";
-const PLATE_GOLD = "#e3c98e";
-const CREAM = "#fffdf7";
-const CREAM_D = "#ece6da";
-const SIDE = "#f3eee4";
-const SIDE_D = "#ddd5c6";
-const BERRY = "#e0384a";
-const BERRY_D = "#a81e30";
+const PLATE_D = "#d9d2c4";
+const CREAM = "#fffdf8";
+const CREAM_D = "#ebe5da";
+const PINK = "#f3d6dc";
+const SIDE = "#f4f0e8";
+const SIDE_D = "#ddd6ca";
+const BERRY = "#e3343e";
+const BERRY_L = "#ff8a86";
+const BERRY_D = "#a81c28";
+const BLUE = "#6c78c8";
+const BLUE_D = "#454f96";
+const RASP = "#ec6a86";
 const LEAF = "#6aa84a";
-const CUT = "#c9bfae";
+const CHOCO = "#4a2a18";
+const SILVER = "#c9ccd6";
 
 // ── 発行元の印 ──────────────────────────────────────────
 // 16枚すべて同じ意匠・同じ位置・同じ大きさ。右下の隅に 5x5 のくまの顔。
@@ -36,77 +43,89 @@ function mark(g: PixelGfx, body: string, eye: string) {
   g.blit(61, 33, MARK, { "#": body, o: eye });
 }
 
-const T_A = "なかよし";
-const T_B = "ケーキ";
+// 寝そべったこすくまくん（チョコの線、17x7）。
+// 背中の山、右に耳2つと目、左下に小さな手。
+const BEAR = [
+  "...####....##.##.",
+  "..#....####..#..#",
+  ".#..............#",
+  "#...........#...#",
+  "#...............#",
+  "#.#.#...........#",
+  ".###############.",
+];
 
-// 題字は左上に2行（上の行 x=2..54、下の行 x=2..41）。
-// ケーキは右下に据え、題字の下の行と縦に半分ずつ重ねて丈を稼ぐ。
-const CX = 50;
+const T = "なかよし";
+const CX = 34;
 const CY = 27;
-const RX = 14;
-const RY = 5;
-const H = 4;
+const RX = 25;
+const RY = 8;
+const H = 3;
 
 export const art: LabelArt = {
   slug: "nakayoshi",
-  swatch: [TABLE, CREAM, BERRY, PLATE_GOLD, INK],
+  swatch: [CREAM, BERRY, BLUE, PINK, CHOCO],
   draw: (g, t) => {
     // ── 卓 ───────────────────────────────────────────────
     g.rect(0, 0, 68, 40, TABLE);
-    // 木目は題字にかからない左下だけ。
-    g.hline(3, 32, 16, TABLE_G);
-    g.hline(12, 35, 14, TABLE_G);
 
-    // ── お皿 ─────────────────────────────────────────────
-    g.ellipse(CX, CY + H + 2, RX + 3, RY + 2, PLATE_D);
-    g.ellipse(CX, CY + H + 1, RX + 3, RY + 2, PLATE);
-    g.ellipse(CX, CY + H + 1, RX + 2, RY + 1, PLATE_GOLD);
-    g.ellipse(CX, CY + H + 1, RX + 1, RY, PLATE);
+    // ── 題字 ─────────────────────────────────────────────
+    // 4文字 x 16px = 64px。この書体の設計級数で1行。
+    jpRow(g, 1, T, INK, { size: 16, shadow: INK_SH });
+
+    // ── お皿。左右の端だけ見える ──────────────────────────
+    g.ellipse(CX, CY + H + 1, RX + 6, RY + 3, PLATE_D);
+    g.ellipse(CX, CY + H, RX + 6, RY + 3, PLATE);
+    // こぼれた苺とブルーベリー
+    g.rect(5, 31, 2, 2, BERRY);
+    g.px(5, 31, BERRY_L);
+    g.rect(62, 27, 2, 2, BLUE);
+    g.rect(8, 34, 2, 1, BLUE_D);
 
     // ── 側面 ─────────────────────────────────────────────
     g.ellipse(CX, CY + H, RX, RY, SIDE_D);
     g.rect(CX - RX, CY, RX * 2 + 1, H, SIDE);
-    g.vline(CX - RX, CY, H, SIDE_D);
-    g.vline(CX + RX, CY, H, SIDE_D);
-    // 下のふちの絞り。手前の弧だけ見える。
-    for (let a = 10; a <= 170; a += 13) {
-      const r = (a * Math.PI) / 180;
-      const x = CX + Math.round(Math.cos(r) * RX);
-      const y = CY + H + Math.round(Math.sin(r) * RY);
-      g.px(x, y - 1, CREAM);
-      g.px(x, y, CREAM_D);
-    }
 
     // ── 上面 ─────────────────────────────────────────────
-    g.ellipse(CX, CY, RX, RY, CREAM_D);
-    g.ellipse(CX, CY - 1, RX - 1, RY - 1, CREAM);
+    g.ellipse(CX, CY, RX, RY, PINK);
+    g.ellipse(CX, CY + 1, RX - 3, RY - 2, CREAM_D);
+    g.ellipse(CX, CY, RX - 3, RY - 2, CREAM);
 
-    // ── 切り目と苺 ───────────────────────────────────────
-    const cut = t < 0.5;
-    const N = 6;
+    // ── まんなかのチョコの絵 ─────────────────────────────
+    g.blit(CX - 8, CY - 4, BEAR, { "#": CHOCO });
+
+    // ── ふちの飾り ───────────────────────────────────────
+    // 苺を14個、ぐるりと。あいだにブルーベリーとラズベリー。
+    const N = 14;
     for (let i = 0; i < N; i++) {
-      const a0 = (i / N) * Math.PI * 2 + Math.PI / N;
-      if (cut) {
-        // 中心からふちへ、まっすぐの切り目。側面にも1本降ろす。
-        const ex = CX + Math.round(Math.cos(a0) * RX);
-        const ey = CY + Math.round(Math.sin(a0) * RY);
-        g.line(CX, CY, ex, ey, CUT);
-        if (Math.sin(a0) > 0) g.vline(ex, ey, H, CUT);
-      }
-      // 苺は各ピースの真ん中に1つずつ。切る前から6つ載っている。
-      const am = a0 + Math.PI / N;
-      const bx = CX + Math.round(Math.cos(am) * RX * 0.6);
-      const by = CY + Math.round(Math.sin(am) * RY * 0.6) - 1;
+      const a = (i / N) * Math.PI * 2 - Math.PI / 2;
+      const bx = CX + Math.round(Math.cos(a) * (RX - 2));
+      const by = CY + Math.round(Math.sin(a) * (RY - 1)) - 1;
+      // 間の粒
+      const am = a + Math.PI / N;
+      const mx = CX + Math.round(Math.cos(am) * (RX - 1));
+      const my = CY + Math.round(Math.sin(am) * (RY - 1));
+      g.px(mx, my, i % 3 === 0 ? RASP : BLUE);
+      g.px(mx, my + 1, i % 3 === 0 ? "#b84462" : BLUE_D);
+      // 苺
       g.rect(bx - 1, by, 3, 2, BERRY);
       g.px(bx, by + 2, BERRY_D);
-      g.px(bx, by - 1, LEAF);
+      g.px(bx - 1, by, BERRY_L);
     }
+    // 奥のミントの葉
+    g.px(CX - 3, CY - RY, LEAF);
+    g.px(CX + 6, CY - RY + 1, LEAF);
 
-    // ── 題字 ─────────────────────────────────────────────
-    // 卓の左上に2行。13px。ケーキより後に刷って、重なりでは字を勝たせる。
-    const asc = ascent(T_A + T_B, JP_SIZE, JP_TH);
-    jpRow(g, 2, T_A, INK, { size: JP_SIZE, ascent: asc, shadow: INK_SH, x: 2 });
-    jpRow(g, 15, T_B, INK, { size: JP_SIZE, ascent: asc, shadow: INK_SH, x: 2 });
+    // ── アラザン。上面の内側でちかちか光る ──────────────
+    const on = t < 0.5;
+    for (const [x, y, k] of [
+      [CX - 13, CY + 2, 0],
+      [CX + 12, CY + 3, 1],
+      [CX - 4, CY + 5, 1],
+      [CX + 5, CY + 5, 0],
+    ] as Array<[number, number, number]>) {
+      g.px(x, y, (k === 0) === on ? "#ffffff" : SILVER);
+    }
 
     // ── ふち ─────────────────────────────────────────────
     // 16枚共通の作法。外周1pxの単色だけ。苺の赤に合わせる。
