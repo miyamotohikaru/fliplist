@@ -1,6 +1,6 @@
 import type { LabelArt } from "./types";
 import type { PixelGfx } from "../gfx";
-import { jpRow } from "../jptitle";
+import { misakiRow, misakiWidth } from "../misaki";
 
 // なかよしケーキシミュレーター — ケーキを好きに飾って、
 // みんなで「公平に」切り分ける。
@@ -12,8 +12,9 @@ import { jpRow } from "../jptitle";
 //   寝そべったこすくまくん。お皿にも苺とブルーベリーがこぼれている。
 // 動くもの: 上面のアラザン（銀の粒）がちかちか光る。
 //
-// 題字は「なかよし」だけを16px（この書体の設計級数）で1行。
-// 「ケーキ」は絵が言うので入れない。そのぶん丈をケーキに回す。
+// 題字は正式名「なかよしケーキシミュレーター」を全部入れる（2026-10-18 ユーザー指示）。
+// 「なかよしケーキ」「シミュレーター」の2行に割る。DotGothic16 は9pxまで縮めると
+// 字が化けるので、8x8設計の美咲フォント（src/art/misaki.ts）で組む。
 
 const TABLE = "#f1e7d6";
 const INK = "#4a2f1e";
@@ -55,11 +56,12 @@ const BEAR = [
   ".###############.",
 ];
 
-const T = "なかよし";
+const T_A = "なかよしケーキ";
+const T_B = "シミュレーター";
 const CX = 34;
-const CY = 27;
+const CY = 29;
 const RX = 25;
-const RY = 8;
+const RY = 7;
 const H = 3;
 
 export const art: LabelArt = {
@@ -70,8 +72,10 @@ export const art: LabelArt = {
     g.rect(0, 0, 68, 40, TABLE);
 
     // ── 題字 ─────────────────────────────────────────────
-    // 4文字 x 16px = 64px。この書体の設計級数で1行。
-    jpRow(g, 1, T, INK, { size: 16, shadow: INK_SH });
+    // 7字 x 8px。2行とも中央に。
+    const tx = Math.round((68 - misakiWidth(T_A)) / 2);
+    misakiRow(g, tx, 4, T_A, INK, INK_SH);
+    misakiRow(g, tx, 13, T_B, INK, INK_SH);
 
     // ── お皿。左右の端だけ見える ──────────────────────────
     g.ellipse(CX, CY + H + 1, RX + 6, RY + 3, PLATE_D);
