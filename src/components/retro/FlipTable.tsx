@@ -19,6 +19,8 @@ const TITLE_BREAKS: Record<string, string> = {
   friends: "ともだち◆ジェネレーター",
   osyaberi: "元も子もない◆こすくまくん",
   ads: "世界一◆広告の多いゲーム",
+  pancake: "おえかきパンケーキ◇シミュレーター",
+  nakayoshi: "なかよしケーキ◇シミュレーター",
 };
 
 /**
