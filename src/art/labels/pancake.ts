@@ -1,6 +1,6 @@
 import type { LabelArt } from "./types";
 import type { PixelGfx } from "../gfx";
-import { JP_SIZE, JP_TH, ascent, jpRow } from "../jptitle";
+import { misakiRow } from "../misaki";
 
 // おえかきパンケーキシミュレーター — 実物は「Pancake Canvas」。
 // 温めたフライパンに生地で絵を描き、生地を流して、ひっくり返すと
@@ -12,6 +12,11 @@ import { JP_SIZE, JP_TH, ascent, jpRow } from "../jptitle";
 //   表には、焦げ色の線でこすくまくんの笑い顔（丸い輪郭・輪の耳・
 //   にっこり閉じた目・小さな鼻・口）が描いてある。
 // 動くもの: 焼きたてのつやが、左上でちらっと光る。
+//
+// 題字は正式名「おえかきパンケーキシミュレーター」を全部入れる（2026-10-18 ユーザー指示）。
+// 16字は1行に入らないので、左に「おえかき」「パンケーキ」、下に「シミュレーター」の3行。
+// DotGothic16 は9pxまで縮めると字が化けるので、8x8設計の美咲フォント（src/art/misaki.ts）で組む。
+// パンケーキの絵は右上に寄せる。
 
 const BOARD = "#e9dcc0";
 const BOARD_L = "#f2e8d2";
@@ -37,49 +42,42 @@ function mark(g: PixelGfx, body: string, eye: string) {
   g.blit(61, 33, MARK, { "#": body, o: eye });
 }
 
-const T = "パンケーキ";
-const CX = 34;
-const CY = 27;
+const T_A = "おえかき";
+const T_B = "パンケーキ";
+const T_C = "シミュレーター";
+const CX = 57;
+const CY = 13;
 
 export const art: LabelArt = {
   slug: "pancake",
   swatch: [BOARD, PLATE, CAKE_2, CAKE_E, LINE],
   draw: (g, t) => {
     // ── 木の板 ───────────────────────────────────────────
-    // 実物と同じく、縦の板目。
     g.rect(0, 0, 68, 40, BOARD);
-    for (const x of [9, 22, 47, 58]) g.vline(x, 15, 25, BOARD_G);
-    g.rect(1, 1, 66, 14, BOARD_L);
-
-    // ── 題字 ─────────────────────────────────────────────
-    // 5文字 x 13px = 65px。ラベルの内側66pxに1行で入る最大。
-    const asc = ascent(T, JP_SIZE, JP_TH);
-    jpRow(g, 2, T, INK, { size: JP_SIZE, ascent: asc, shadow: INK_SH });
+    g.hline(1, 36, 66, BOARD_G);
 
     // ── お皿 ─────────────────────────────────────────────
-    // パンケーキを大きく見せたいので、お皿は外周2pxだけ覗かせる。
-    g.disc(CX + 1, CY + 1, 13, PLATE_D);
-    g.disc(CX, CY, 13, PLATE);
+    g.disc(CX + 1, CY + 1, 11, PLATE_D);
+    g.disc(CX, CY, 11, PLATE);
     for (let a = -20; a <= 130; a += 12) {
       const r = (a * Math.PI) / 180;
-      g.px(CX + Math.round(Math.cos(r) * 12), CY + Math.round(Math.sin(r) * 12), PLATE_RIB);
+      g.px(CX + Math.round(Math.cos(r) * 10), CY + Math.round(Math.sin(r) * 10), PLATE_RIB);
     }
 
     // ── パンケーキ ───────────────────────────────────────
     // 外ほど濃い焼き色。輪を重ねて年輪のように見せる。
-    g.disc(CX, CY, 11, CAKE_E);
-    g.disc(CX, CY, 10, CAKE_1);
-    g.disc(CX, CY, 9, CAKE_2);
-    g.ring(CX, CY, 8, CAKE_1, 1);
-    g.disc(CX, CY, 6, CAKE_3);
-    g.disc(CX, CY + 1, 4, CAKE_C);
+    g.disc(CX, CY, 9, CAKE_E);
+    g.disc(CX, CY, 8, CAKE_1);
+    g.disc(CX, CY, 7, CAKE_2);
+    g.disc(CX, CY, 5, CAKE_3);
+    g.disc(CX, CY + 1, 3, CAKE_C);
 
     // ── こすくまくんの笑い顔（焦げ色の線） ──────────────
     // 手本どおり、大きな丸い輪郭に、輪の耳が左右の肩に重なる。
-    g.ring(CX, CY + 1, 7, LINE, 1); // 輪郭
-    for (const ex of [CX - 6, CX + 6]) {
-      g.disc(ex, CY - 5, 2, CAKE_2);
-      g.ring(ex, CY - 5, 2, LINE, 1); // 耳
+    g.ring(CX, CY + 1, 6, LINE, 1); // 輪郭
+    for (const ex of [CX - 5, CX + 5]) {
+      g.disc(ex, CY - 4, 1, CAKE_2);
+      g.ring(ex, CY - 4, 2, LINE, 1); // 耳
     }
     // にっこり閉じた目（^ ^）
     for (const ex of [CX - 3, CX + 3]) {
@@ -89,16 +87,21 @@ export const art: LabelArt = {
     }
     // 鼻と口
     g.px(CX, CY + 2, CAKE_E);
-    g.px(CX - 3, CY + 4, LINE);
-    g.hline(CX - 2, CY + 5, 5, LINE);
-    g.px(CX + 3, CY + 4, LINE);
+    g.px(CX - 2, CY + 3, LINE);
+    g.hline(CX - 1, CY + 4, 3, LINE);
+    g.px(CX + 2, CY + 3, LINE);
 
     // ── つや ─────────────────────────────────────────────
-    // 焼きたてのつやが、左上でちらっと光る。
     if (t < 0.5) {
-      g.px(CX - 7, CY - 2, CAKE_C);
-      g.px(CX - 6, CY - 3, CAKE_C);
+      g.px(CX - 6, CY - 1, CAKE_C);
+      g.px(CX - 5, CY - 2, CAKE_C);
     }
+
+    // ── 題字 ─────────────────────────────────────────────
+    // 3行とも8x8。左寄せで、上2行はお皿の左に収める。
+    misakiRow(g, 4, 6, T_A, INK, INK_SH);
+    misakiRow(g, 4, 16, T_B, INK, INK_SH);
+    misakiRow(g, 4, 26, T_C, INK, INK_SH);
 
     // ── ふち ─────────────────────────────────────────────
     // 16枚共通の作法。外周1pxの単色だけ。焼き色に合わせる。

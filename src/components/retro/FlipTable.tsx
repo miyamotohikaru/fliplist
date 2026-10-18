@@ -43,6 +43,12 @@ const TITLE_BREAKS: Record<string, string> = {
  * flip と打つと表がまるごとひっくり返る仕掛け（Tricks.tsx）が
  * tBodies[0].rows を裏返すため。ここを thead にすると見出しが回らない。
  */
+/**
+ * 表の並び。公開中のものを上に、工事中のものをその下に。
+ * それぞれの中は flips.ts の並び（＝リリース日の順）のまま。
+ */
+const ROWS: Flip[] = [...FLIPS.filter(isOpen), ...FLIPS.filter((f) => !isOpen(f))];
+
 export default function FlipTable() {
   return (
     <table>
@@ -54,7 +60,7 @@ export default function FlipTable() {
           <th className="head t-desc">どんなもの</th>
           <th className="head t-state">ぐあい</th>
         </tr>
-        {FLIPS.map((flip, i) => (
+        {ROWS.map((flip, i) => (
           <Row key={flip.slug} flip={flip} n={i + 1} />
         ))}
       </tbody>
