@@ -170,7 +170,9 @@ export const art: LabelArt = {
     // ── パンケーキ。ひっくり返すと絵が出てくる ───────────
     // 0〜3コマ: 生地の面が上。白っぽく、泡がだんだん増える（焼けてきた合図）。
     // 4〜7コマ: フライ返しが差し込まれ、持ち上がって裏返る。
-    //           楕円の縦幅を 9→6→2→1→6 と潰して、回っているように見せる。
+    //           実物（Pancake Canvas）と同じく縦の軸で横に回す。
+    //           楕円の横幅を 9→6→2→1→6 と潰して、くるっと回っているように見せる。
+    //           7コマ目は、横に縮んだ笑い顔がもう見え始めている。
     // 8〜11コマ: 焼き色の面が上。先に描いておいた笑い顔が焦げ色で出てくる。
     const FLIP: Array<[number, number, "raw" | "edge" | "baked"]> = [
       [0, CAKE_R, "raw"],
@@ -186,22 +188,16 @@ export const art: LabelArt = {
       [0, CAKE_R, "baked"],
       [0, CAKE_R, "baked"],
     ];
-    const [lift, ry, side] = FLIP[k];
+    const [lift, rx, side] = FLIP[k];
     const py = CY - lift;
     const flipping = k >= 4 && k <= 7;
 
     // フライパンに落ちる影。持ち上がるほど右下にずれる。
-    g.ellipse(
-      CX + 1 + lift,
-      CY + 1 + lift,
-      CAKE_R,
-      ry === CAKE_R ? CAKE_R : Math.max(3, ry),
-      "#0e0d0f",
-    );
+    g.ellipse(CX + 1 + lift, CY + 1 + lift, Math.max(3, rx), CAKE_R, "#0e0d0f");
 
     if (side === "raw") {
-      g.ellipse(CX, py, CAKE_R, ry, BATTER_D);
-      g.ellipse(CX, py, CAKE_R - 1, Math.max(0, ry - 1), BATTER);
+      g.ellipse(CX, py, rx, CAKE_R, BATTER_D);
+      g.ellipse(CX, py, Math.max(0, rx - 1), CAKE_R - 1, BATTER);
       if (!flipping) {
         // 泡。コマが進むほど増える。
         const bubbles: Array<[number, number]> = [
@@ -221,14 +217,18 @@ export const art: LabelArt = {
         }
       }
     } else if (side === "edge") {
-      // 真横を向いた瞬間。生地の厚みだけが見える。
-      g.ellipse(CX, py, CAKE_R, ry, CAKE_1);
-      g.hline(CX - CAKE_R + 1, py - ry, CAKE_R * 2 - 1, BATTER);
-    } else if (ry < CAKE_R) {
-      // 裏返って落ちてくる途中。焼き色の面が見え始める。
-      g.ellipse(CX, py, CAKE_R, ry, CAKE_E);
-      g.ellipse(CX, py, CAKE_R - 1, ry - 1, CAKE_2);
-      g.ellipse(CX, py, CAKE_R - 4, Math.max(1, ry - 3), CAKE_3);
+      // 真横を向いた瞬間。生地の厚みだけが縦に見える。左が生地、右が焼き色。
+      g.ellipse(CX, py, rx, CAKE_R, CAKE_1);
+      g.vline(CX - rx, py - CAKE_R + 1, CAKE_R * 2 - 1, BATTER);
+    } else if (rx < CAKE_R) {
+      // 回りきる手前。焼き色の面と、横に縮んだ笑い顔が見え始める。
+      g.ellipse(CX, py, rx, CAKE_R, CAKE_E);
+      g.ellipse(CX, py, rx - 1, CAKE_R - 1, CAKE_2);
+      g.ellipse(CX, py, Math.max(1, rx - 3), CAKE_R - 4, CAKE_3);
+      const sx = rx / CAKE_R;
+      for (const [x, y] of facePath(CX, CY)) {
+        g.px(CX + Math.round((x - CX) * sx), y - lift, LINE);
+      }
     } else {
       g.disc(CX, CY, CAKE_R, CAKE_E);
       g.disc(CX, CY, CAKE_R - 1, CAKE_1);
@@ -263,8 +263,8 @@ export const art: LabelArt = {
     // ── フライ返し ───────────────────────────────────────
     if (flipping) {
       // パンケーキの下へ差し込んでいる。柄は左下へ。
-      const bx = CX - CAKE_R - 2;
-      const by = py + Math.min(ry, 2);
+      const bx = CX - Math.max(rx, 2) - 5;
+      const by = py + 3;
       g.line(22, 27, bx, by + 1, HANDLE);
       g.line(22, 28, bx, by + 2, HANDLE_D);
       g.rect(bx, by, 7, 3, TURNER);
