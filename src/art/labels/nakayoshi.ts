@@ -14,7 +14,8 @@ import { misakiRow, misakiWidth } from "../misaki";
 //   丸ごと見えることを優先する。
 //   地は赤いギンガムチェックのテーブルクロス。白いケーキが一番明るく浮く。
 //
-// 動くもの（1周3秒・12コマ）: ケーキが回転台の上でゆっくり回る。
+// 動くもの（1周3秒・12コマ）: ケーキが回転台の上でゆっくり回り、
+//   右側でナイフが下りて、6等分の切り目を1本ずつ入れていく（2026-10-20 ユーザー指示）。
 //   ふちの果物と側面の粒が、奥から手前へ、左から右へ流れる。
 //   果物は「苺・ブルーベリー」の2個で1組なので、1周でちょうど1組ぶん回すと
 //   最初のコマと同じ絵に戻り、継ぎ目なく回り続けて見える。
@@ -47,6 +48,13 @@ const LEAF_D = "#3c7c30";
 const BLUE = "#5e6cc4";
 const BLUE_L = "#9aa6ea";
 const BLUE_D = "#38407e";
+const CUT = "#a8937a";
+const CUT_SIDE = "#d6c8b2";
+const BLADE = "#d9dde4";
+const BLADE_L = "#ffffff";
+const BLADE_D = "#8d939e";
+const KNIFE_HANDLE = "#5a3420";
+const KNIFE_HANDLE_D = "#3a1f12";
 
 // ── 発行元の印 ──────────────────────────────────────────
 // 16枚すべて同じ意匠・同じ位置・同じ大きさ。右下の隅に 5x5 のくまの顔。
@@ -162,6 +170,21 @@ export const art: LabelArt = {
     g.ellipse(CX, TOP_Y, RX - 4, RY - 2, CREAM_D);
     g.ellipse(CX, TOP_Y - 1, RX - 4, RY - 2, CREAM);
 
+    // ── 切り目。6等分 ─────────────────────────────────────
+    // 果物と同じ速さで回る（1周で60°）ので、6本の切り目も1周で元の絵に戻る。
+    // 右（0°）でナイフが下りる。0°の手前60°に来ている1本だけは、まだ切っていない。
+    // 9コマ目にナイフが上面に届き、その1本が0°に来て切り目になる。
+    const cutAt = (j: number) => ((j * 60 + t * 60 + 15) * Math.PI) / 180;
+    for (let j = 0; j < 6; j++) {
+      const a = cutAt(j);
+      const deg = (((((a * 180) / Math.PI + 180) % 360) + 360) % 360) - 180;
+      if (deg >= -60 && deg < 0) continue; // これから切る1本
+      const ex = CX + Math.round(Math.cos(a) * (RX - 1));
+      const ey = TOP_Y + Math.round(Math.sin(a) * (RY - 1));
+      g.line(CX, TOP_Y, ex, ey, CUT);
+      if (Math.sin(a) > 0.15) g.vline(ex, ey + 1, H, CUT_SIDE); // 手前は側面にも切り口
+    }
+
     // ── ふちの果物。回る ─────────────────────────────────
     // 苺とブルーベリーが交互に12個。1周で2個ぶん（＝1組）進む。
     const N = 12;
@@ -183,6 +206,22 @@ export const art: LabelArt = {
 
     // 手前の果物
     front.forEach(put);
+
+    // ── ナイフ ───────────────────────────────────────────
+    // 右側で、切り目の線に沿って刃を寝かせたまま上下する。9コマ目で上面に届く。
+    const KNIFE_Y = [-7, -7, -7, -7, -7, -6, -4, -2, -1, 0, 0, -3];
+    const ky = TOP_Y + KNIFE_Y[Math.round(t * 12) % 12];
+    const kx0 = CX + 3;
+    const kx1 = CX + RX - 2;
+    g.rect(kx0 + 1, ky - 3, kx1 - kx0, 3, BLADE);
+    g.hline(kx0 + 1, ky - 3, kx1 - kx0, BLADE_L); // 背の光
+    g.hline(kx0, ky - 1, kx1 - kx0 + 1, BLADE_D); // 刃先
+    g.px(kx0, ky - 2, BLADE_D); // 切っ先
+    g.rect(kx1 + 1, ky - 3, 2, 3, BLADE_D); // つば
+    g.rect(kx1 + 3, ky - 3, 10, 3, KNIFE_HANDLE);
+    g.hline(kx1 + 3, ky - 1, 10, KNIFE_HANDLE_D);
+    g.px(kx1 + 6, ky - 2, BLADE_L); // 鋲
+    g.px(kx1 + 9, ky - 2, BLADE_L);
 
     // ── ふち ─────────────────────────────────────────────
     // 16枚共通の作法。外周1pxの単色だけ。苺の赤に合わせる。
