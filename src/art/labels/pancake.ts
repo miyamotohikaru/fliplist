@@ -10,14 +10,15 @@ import { misakiRow } from "../misaki";
 //   右上にフライパン。その上に焼き色のついたパンケーキがのっていて、
 //   表に、実物の「できた！」画面のこすくまくんの笑い顔（焦げ色の線）。
 //   フライパンのまわりから、青いガスの火がのぞく。
-//   使う道具も並べる: 絵を描くソースボトル（右上から差し込む）、
+//   使う道具も並べる: 絵を描くソースボトル（右上の隅）、
 //   ひっくり返すフライ返し（左のあき）、火加減のつまみ（右下）。
 //   題字は左に3行。暗い天板の上なので、明るい字が一番強く立つ。
 //   主役の「パンケーキ」だけ生地の黄色にする。
 //
 // 動くもの（1周3秒・12コマ）:
-//   ・ソースボトルの口が、笑い顔を輪郭→耳→目→口の順に一筆ずつ描いていく。
-//     8コマ目で描き終わり、残りの4コマは描き上がった顔を見せる。
+//   ・フライ返しでパンケーキをひっくり返すと、焼き色の面に笑い顔が出てくる
+//     （2026-10-20 ユーザー指示。実物の「描いてから流して、返すと絵が出る」そのもの）。
+//     生地の面で泡が増える4コマ → 持ち上げて裏返す4コマ → 絵が出て光る4コマ。
 //   ・ガスの火が、コマごとに長短を入れ替えてゆらぐ。
 //
 // 2026-10-20 に作り直した（ユーザー指示: フライパン・火・道具を入れ、
@@ -38,6 +39,8 @@ const CAKE_2 = "#c07432";
 const CAKE_3 = "#d48e46";
 const CAKE_C = "#e6ad66";
 const LINE = "#2e1608";
+const BATTER = "#f6e2b4";
+const BATTER_D = "#dcbf86";
 
 const FLAME = "#3f8cff";
 const FLAME_L = "#9fd0ff";
@@ -73,18 +76,27 @@ const PAN_R = 14;
 const CAKE_R = 9;
 
 /** 円周の点を、上から時計回りに。重なりは除く。 */
-function arc(cx: number, cy: number, r: number, from: number, steps: number): Array<[number, number]> {
+function arc(
+  cx: number,
+  cy: number,
+  r: number,
+  from: number,
+  steps: number,
+): Array<[number, number]> {
   const out: Array<[number, number]> = [];
   for (let i = 0; i <= steps; i++) {
     const a = ((from + (360 * i) / steps) * Math.PI) / 180;
-    const p: [number, number] = [Math.round(cx + Math.sin(a) * r), Math.round(cy - Math.cos(a) * r)];
+    const p: [number, number] = [
+      Math.round(cx + Math.sin(a) * r),
+      Math.round(cy - Math.cos(a) * r),
+    ];
     const last = out[out.length - 1];
     if (!last || last[0] !== p[0] || last[1] !== p[1]) out.push(p);
   }
   return out;
 }
 
-/** 笑い顔を描く順の点列。輪郭→左耳→右耳→左目→右目→口。 */
+/** 笑い顔の線の点列。輪郭→左耳→右耳→左目→右目→口。 */
 function facePath(fx: number, fy: number): Array<[number, number]> {
   return [
     ...arc(fx, fy + 1, 6, 0, 56),
@@ -134,7 +146,12 @@ export const art: LabelArt = {
         const y = Math.round(CY + sa * r);
         const c = j === 0 ? FLAME_L : j === len - 1 ? FLAME_D : FLAME;
         g.px(x, y, c);
-        if (j === 0) g.px(Math.round(CX + Math.cos(a + 0.07) * r), Math.round(CY + Math.sin(a + 0.07) * r), FLAME);
+        if (j === 0)
+          g.px(
+            Math.round(CX + Math.cos(a + 0.07) * r),
+            Math.round(CY + Math.sin(a + 0.07) * r),
+            FLAME,
+          );
       }
     }
 
@@ -150,42 +167,117 @@ export const art: LabelArt = {
     g.disc(CX, CY, PAN_R - 2, PAN);
     g.disc(CX, CY, PAN_R - 3, PAN_IN);
 
-    // ── パンケーキ ───────────────────────────────────────
-    g.disc(CX + 1, CY + 1, CAKE_R, "#0e0d0f"); // フライパンに落ちる影
-    g.disc(CX, CY, CAKE_R, CAKE_E);
-    g.disc(CX, CY, CAKE_R - 1, CAKE_1);
-    g.disc(CX, CY, CAKE_R - 2, CAKE_2);
-    g.ring(CX, CY, CAKE_R - 3, CAKE_1, 1);
-    g.disc(CX, CY, CAKE_R - 4, CAKE_3);
-    g.disc(CX, CY + 1, CAKE_R - 7, CAKE_C);
+    // ── パンケーキ。ひっくり返すと絵が出てくる ───────────
+    // 0〜3コマ: 生地の面が上。白っぽく、泡がだんだん増える（焼けてきた合図）。
+    // 4〜7コマ: フライ返しが差し込まれ、持ち上がって裏返る。
+    //           楕円の縦幅を 9→6→2→1→6 と潰して、回っているように見せる。
+    // 8〜11コマ: 焼き色の面が上。先に描いておいた笑い顔が焦げ色で出てくる。
+    const FLIP: Array<[number, number, "raw" | "edge" | "baked"]> = [
+      [0, CAKE_R, "raw"],
+      [0, CAKE_R, "raw"],
+      [0, CAKE_R, "raw"],
+      [0, CAKE_R, "raw"],
+      [2, 6, "raw"],
+      [4, 2, "edge"],
+      [4, 1, "edge"],
+      [2, 6, "baked"],
+      [0, CAKE_R, "baked"],
+      [0, CAKE_R, "baked"],
+      [0, CAKE_R, "baked"],
+      [0, CAKE_R, "baked"],
+    ];
+    const [lift, ry, side] = FLIP[k];
+    const py = CY - lift;
+    const flipping = k >= 4 && k <= 7;
 
-    // ── こすくまくんの笑い顔を、ソースボトルで描いていく ──
-    for (const ex of [CX - 5, CX + 5]) g.px(ex, CY - 4, CAKE_3);
-    const pts = facePath(CX, CY);
-    const n = Math.min(pts.length, Math.round((pts.length * (k + 1)) / 8));
-    for (let i = 0; i < n; i++) g.px(pts[i][0], pts[i][1], LINE);
-    if (n < pts.length) {
-      // 口が今の点に当たる。胴は右上へ逃がす。
-      const [px, py] = pts[Math.max(0, n - 1)];
-      g.px(px, py, BOTTLE_TIP);
-      g.px(px + 1, py - 1, BOTTLE_TIP);
-      g.rect(px + 2, py - 6, 3, 5, BOTTLE);
-      g.vline(px + 4, py - 6, 5, BOTTLE_D);
+    // フライパンに落ちる影。持ち上がるほど右下にずれる。
+    g.ellipse(
+      CX + 1 + lift,
+      CY + 1 + lift,
+      CAKE_R,
+      ry === CAKE_R ? CAKE_R : Math.max(3, ry),
+      "#0e0d0f",
+    );
+
+    if (side === "raw") {
+      g.ellipse(CX, py, CAKE_R, ry, BATTER_D);
+      g.ellipse(CX, py, CAKE_R - 1, Math.max(0, ry - 1), BATTER);
+      if (!flipping) {
+        // 泡。コマが進むほど増える。
+        const bubbles: Array<[number, number]> = [
+          [-4, -3],
+          [3, -5],
+          [5, 2],
+          [-2, 4],
+          [1, 0],
+          [-6, 1],
+          [4, -1],
+          [-1, -6],
+        ];
+        for (let i = 0; i < Math.min(bubbles.length, 2 + k * 2); i++) {
+          const [bx, by] = bubbles[i];
+          g.px(CX + bx, CY + by, BATTER_D);
+          g.px(CX + bx - 1, CY + by - 1, "#fffaf0");
+        }
+      }
+    } else if (side === "edge") {
+      // 真横を向いた瞬間。生地の厚みだけが見える。
+      g.ellipse(CX, py, CAKE_R, ry, CAKE_1);
+      g.hline(CX - CAKE_R + 1, py - ry, CAKE_R * 2 - 1, BATTER);
+    } else if (ry < CAKE_R) {
+      // 裏返って落ちてくる途中。焼き色の面が見え始める。
+      g.ellipse(CX, py, CAKE_R, ry, CAKE_E);
+      g.ellipse(CX, py, CAKE_R - 1, ry - 1, CAKE_2);
+      g.ellipse(CX, py, CAKE_R - 4, Math.max(1, ry - 3), CAKE_3);
     } else {
-      // 描き終えたボトルは右上の隅に置く。
-      g.px(62, 3, BOTTLE_TIP);
-      g.rect(63, 0, 3, 3, BOTTLE);
-      g.vline(65, 0, 3, BOTTLE_D);
+      g.disc(CX, CY, CAKE_R, CAKE_E);
+      g.disc(CX, CY, CAKE_R - 1, CAKE_1);
+      g.disc(CX, CY, CAKE_R - 2, CAKE_2);
+      g.ring(CX, CY, CAKE_R - 3, CAKE_1, 1);
+      g.disc(CX, CY, CAKE_R - 4, CAKE_3);
+      g.disc(CX, CY + 1, CAKE_R - 7, CAKE_C);
+      // こすくまくんの笑い顔（焦げ色の線）
+      for (const ex of [CX - 5, CX + 5]) g.px(ex, CY - 4, CAKE_3);
+      for (const [x, y] of facePath(CX, CY)) g.px(x, y, LINE);
+      // 出てきた瞬間のきらり。8コマ目と10コマ目に光る。
+      if (k === 8 || k === 10) {
+        for (const [x, y] of [
+          [CX - 9, CY - 7],
+          [CX + 9, CY - 6],
+          [CX + 8, CY + 8],
+        ] as Array<[number, number]>) {
+          g.px(x, y, "#ffffff");
+          g.px(x - 1, y, INK_HOT);
+          g.px(x + 1, y, INK_HOT);
+          g.px(x, y - 1, INK_HOT);
+          g.px(x, y + 1, INK_HOT);
+        }
+      }
     }
 
-    // ── フライ返し（左のあき） ───────────────────────────
-    // 柄が左、へらが右。題字の2行目と3行目のあいだに横たえる。
-    g.hline(3, 25, 20, HANDLE);
-    g.hline(3, 26, 20, HANDLE_D);
-    g.rect(23, 24, 2, 4, TURNER_D);
-    g.rect(25, 22, 9, 7, TURNER);
-    g.hline(25, 28, 9, TURNER_D);
-    for (const x of [27, 30]) g.vline(x, 23, 4, TURNER_D); // へらのすき間
+    // ── ソースボトル（右上の隅に置いてある） ─────────────
+    g.px(62, 3, BOTTLE_TIP);
+    g.rect(63, 0, 3, 3, BOTTLE);
+    g.vline(65, 0, 3, BOTTLE_D);
+
+    // ── フライ返し ───────────────────────────────────────
+    if (flipping) {
+      // パンケーキの下へ差し込んでいる。柄は左下へ。
+      const bx = CX - CAKE_R - 2;
+      const by = py + Math.min(ry, 2);
+      g.line(22, 27, bx, by + 1, HANDLE);
+      g.line(22, 28, bx, by + 2, HANDLE_D);
+      g.rect(bx, by, 7, 3, TURNER);
+      g.hline(bx, by + 2, 7, TURNER_D);
+    } else {
+      // 左のあきに置いてある。柄が左、へらが右。
+      g.hline(3, 25, 20, HANDLE);
+      g.hline(3, 26, 20, HANDLE_D);
+      g.rect(23, 24, 2, 4, TURNER_D);
+      g.rect(25, 22, 9, 7, TURNER);
+      g.hline(25, 28, 9, TURNER_D);
+      for (const x of [27, 30]) g.vline(x, 23, 4, TURNER_D); // へらのすき間
+    }
 
     // ── 火加減のつまみ（右下） ───────────────────────────
     g.disc(63, 27, 3, KNOB_D);
