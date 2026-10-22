@@ -970,6 +970,11 @@ a {
   }
   #home .rireki dd {
     margin-left: 20px;
+    /* 1つの知らせは1行で読ませる（折り返すと次の日付とまぎれる）。
+       いちばん長い行が収まる級数まで、全行そろって小さくする。
+       66px = 左右のあき＋dd の左の字下げ（実測で少し余裕を残した値）。字数は page.tsx の RIREKI_CHARS */
+    white-space: nowrap;
+    font-size: min(14px, calc((100vw - 66px) / var(--rireki-chars, 26)));
   }
   #home .def td {
     padding: 14px 16px;
