@@ -10,6 +10,15 @@ import { CLOSED_COUNT, HISTORY, jpDate, OPENED, PAGE_MADE } from "@/components/r
 import { FLIP_DEFINITION } from "@/data/flips";
 
 const HOME = "https://kosukuma.com/home.html";
+
+/**
+ * 更新履歴でいちばん長い1行の字数（NEW札のぶんは2.5字と数える）。
+ * 携帯では1行ずつ折り返さずに出すので、この字数が版面に収まる級数まで
+ * 全行そろって小さくする（globals.css の --rireki-chars）。
+ */
+const RIREKI_CHARS = Math.max(
+  ...HISTORY.map((log, i) => [...log.text].length + (i < 2 ? 2.5 : 0)),
+);
 const CONTACT = "https://kosukuma.com/contact/";
 
 /**
@@ -187,7 +196,7 @@ export default function Page() {
             </Heading>
           </h3>
 
-          <dl className="rireki">
+          <dl className="rireki" style={{ "--rireki-chars": RIREKI_CHARS } as React.CSSProperties}>
             {HISTORY.map((log, i) => (
               <div className="rireki-row" key={`${log.date}-${i}`}>
                 <dt>{jpDate(log.date)}</dt>
