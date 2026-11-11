@@ -1,8 +1,9 @@
 import type { LabelArt } from "./types";
 import type { PixelGfx } from "../gfx";
 import { JP_TH, ascent, jpRow } from "../jptitle";
+import { misakiRow, misakiWidth } from "../misaki";
 
-// 世界一広告の多いゲーム。まだ制作中。
+// 世界で一番広告が多いゲーム。2026-11-08 公開。
 //
 // 描くのは「ゲーム画面が広告に埋め尽くされている」その一枚。
 // 先にゲームの画面をまるごと描いて、その上から広告で塗り潰す。
@@ -48,6 +49,15 @@ function stripes(g: PixelGfx, x: number, y: number, w: number, h: number, c: str
     for (let i = 0; i < w; i++) if ((i + j) % p < 3) g.px(x + i, y + j, c);
 }
 
+/**
+ * こすくまくん（ゲームの主人公）。5x6 のごく小さい姿なので、
+ * 耳・白い体・目の2点だけ。輪郭は黒（実物の太い輪郭の名残）。
+ */
+const KUMA_TINY = ["k.k.k", "kwwwk", "wiwiw", "wwwww", "kwwwk", ".k.k."];
+function kuma(g: PixelGfx, x: number, y: number) {
+  g.blit(x, y, KUMA_TINY, { k: INK, w: "#f7f7d8", i: INK });
+}
+
 /** 閉じるボタン。いつも面の外にずれている。 */
 function closeBtn(g: PixelGfx, x: number, y: number) {
   g.rect(x, y, 7, 7, WHITE);
@@ -57,15 +67,16 @@ function closeBtn(g: PixelGfx, x: number, y: number) {
 }
 
 // ── 和文の題字 ──────────────────────────────────────────
-// 「世界一広告の多いゲーム」11文字。漢字はどれも画数が少ないので 11px で持つ
-// （11px x 6 = 66px＝ラベルの内寸ちょうど）。6字＋5字の2行。
-// 題字も広告の一枚として組む。上の看板が「世界一広告の」、
-// 割り込みの全画面が「多いゲーム」。合わせて読ませる。
+// 正式名は「世界で一番広告が多いゲーム」13文字（2026-11-11、公開版の名前に合わせた。
+// 前は「世界一広告の多いゲーム」の11文字を 11px で 6字＋5字に組んでいた）。
+// 上の看板の「世界で一番広告が」8字は 11px だと入らないので、8x8 の美咲ゴシック
+// （misaki.ts）で1行に。割り込みの全画面の「多いゲーム」は前と同じ 11px のまま。
+// 題字も広告の一枚として組む。2枚の広告を合わせて読ませる。
 //
 // **ふちは回さない。** 11px の字間は1pxしかないので、8方向に黒を回すと
 // 字と字がくっついて帯が1枚の黒い板になる。かわりに、字が乗る面だけ
 // 斜めの縞を抜いて無地にした。無地の上なら1色べたで抜ける。
-const T_A = "世界一広告の";
+const T_A = "世界で一番広告が";
 const T_B = "多いゲーム";
 const T_SIZE = 11;
 
@@ -118,12 +129,8 @@ export const art: LabelArt = {
     g.rect(38, 26, 5, 4, "#2a7a2a");
     g.hline(38, 26, 5, "#63c455");
     // 主人公。1体だけ、はっきり描いておく。
-    g.rect(30, 21, 5, 6, "#f2e0c0");
-    g.rect(30, 21, 5, 2, RED);
-    g.px(31, 24, INK);
-    g.px(33, 24, INK);
-    g.rect(29, 25, 2, 2, BLUE);
-    g.rect(34, 25, 2, 2, BLUE);
+    // 実物の主人公はこすくまくん（2026-11-11 に赤い帽子の子から描き替えた）。
+    kuma(g, 30, 21);
     g.disc(47, 16, 2, YELLOW);
 
     // ── 広告 ───────────────────────────────────────────────
@@ -134,8 +141,8 @@ export const art: LabelArt = {
     // 上の看板。ここに和文の題字の1行目。字が乗る10行は縞を抜いて無地にする。
     adBox(g, 0, 0, 68, 13, MAGENTA);
     stripes(g, 1, 11, 66, 1, YELLOW, 4);
-    const asc = ascent(T_A + T_B, T_SIZE, JP_TH);
-    jpRow(g, 1, T_A, YELLOW, { size: T_SIZE, ascent: asc });
+    const asc = ascent(T_B, T_SIZE, JP_TH);
+    misakiRow(g, Math.round((68 - misakiWidth(T_A)) / 2), 2, T_A, YELLOW);
 
     // 割り込みの全画面広告。ここが題字の2行目。
     adBox(g, 0, 14, 61, 12, CREAM);
@@ -163,12 +170,7 @@ export const art: LabelArt = {
       g.px(i + 1, 33, "#8ede2a");
     }
     // 主人公。ここだけはっきり描いておく。
-    g.rect(7, 27, 5, 5, "#f2e0c0");
-    g.rect(7, 27, 5, 2, RED);
-    g.px(8, 30, INK);
-    g.px(10, 30, INK);
-    g.rect(6, 31, 2, 2, BLUE);
-    g.rect(11, 31, 2, 2, BLUE);
+    kuma(g, 10, 27);
     g.disc(20, 29, 2, YELLOW);
     // 帯の縁。ここも同じ1pxの黒
     g.hline(0, 26, 68, INK);
@@ -197,7 +199,7 @@ export const art: LabelArt = {
     // ── 迷子の閉じるボタンたち ─────────────────────────────
     // どれも面の外にずれている。押せない。
     // 置き場所は題字の字面を避けてある。読めない題字は広告にもならない。
-    closeBtn(g, 61, 8);
+    closeBtn(g, 61, 9);
     closeBtn(g, 3, 22);
     closeBtn(g, 16, 25);
     // 押せない読み込みの棒。1周で0まで減る（＝終わらない広告）
