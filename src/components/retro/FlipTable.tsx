@@ -24,6 +24,7 @@ const TITLE_BREAKS: Record<string, string> = {
   takoyaki: "大忙し◆たこ焼き屋さん◇シミュレーター",
   rollice: "なんでもロールアイス◇シミュレーター",
   kakigori: "ふわふわかき氷◇シミュレーター",
+  "todofuken-spin": "都道府県◆スピンバトル",
 };
 
 /**

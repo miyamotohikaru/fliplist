@@ -22,6 +22,7 @@ import { art as art_takoyaki } from "./takoyaki";
 import { art as art_rollice } from "./rollice";
 import { art as art_kakigori } from "./kakigori";
 import { art as art_hakusen } from "./hakusen";
+import { art as art_todofuken_spin } from "./todofuken-spin";
 
 // 並び順は flips.ts と揃えてある。
 const ALL: LabelArt[] = [
@@ -47,6 +48,7 @@ const ALL: LabelArt[] = [
   art_takoyaki,
   art_rollice,
   art_hakusen,
+  art_todofuken_spin,
   art_kakigori,
 ];
 
