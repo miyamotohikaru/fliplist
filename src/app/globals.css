@@ -605,6 +605,35 @@ a {
   margin-left: 4px;
   vertical-align: middle;
 }
+/* むかしの履歴（たたんだ古い分）。開け閉めの1行は当時のリンクの見た目にする */
+#home .rireki-more {
+  width: 900px;
+  max-width: 100%;
+  margin: 6px auto 10px;
+  text-align: left;
+}
+#home .rireki-more summary {
+  display: inline-block;
+  list-style: none;
+  padding: 6px 0;
+  font-size: 13px;
+  color: #0000ee;
+  text-decoration: underline;
+  cursor: pointer;
+}
+#home .rireki-more summary::-webkit-details-marker {
+  display: none;
+}
+#home .rireki-more .rireki-more__close,
+#home .rireki-more[open] .rireki-more__open {
+  display: none;
+}
+#home .rireki-more[open] .rireki-more__close {
+  display: inline;
+}
+#home .rireki-more[open] summary {
+  margin-bottom: 4px;
+}
 
 /* ── ふりっぷとは ──────────────────────────────
    当時は本文を囲うのに表を1マスだけ使った。罫は本物の表と同じ組み。
@@ -804,6 +833,7 @@ a {
   #home .note,
   #home .order,
   #home .rireki,
+  #home .rireki-more,
   #home .cont02 table {
     width: 100%;
   }

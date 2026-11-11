@@ -21,6 +21,32 @@ const RIREKI_CHARS = Math.max(
 );
 const CONTACT = "https://kosukuma.com/contact/";
 
+/** 更新履歴で、たたまずに最初から見せる件数（新しいほうから） */
+const RIREKI_SHOWN = 5;
+const rirekiStyle = { "--rireki-chars": RIREKI_CHARS } as React.CSSProperties;
+
+/** 更新履歴の1行。日付＋知らせ。新しい2件には NEW 札 */
+function RirekiRow({ log, isNew }: { log: (typeof HISTORY)[number]; isNew: boolean }) {
+  return (
+    <div className="rireki-row">
+      <dt>{jpDate(log.date)}</dt>
+      <dd>
+        {log.text}
+        {isNew ? (
+          <>
+            {/* WORD JOINER(幅ゼロ、U+2060)。無いと携帯の狭い版面で
+                NEW札だけ次の行へ落ちることがあった */}
+            {"\u2060"}
+            <span className="new">
+              <img src="/hp/new.gif" alt="new" width={24} height={14} />
+            </span>
+          </>
+        ) : null}
+      </dd>
+    </div>
+  );
+}
+
 /**
  * ふりっぷ一覧。
  *
@@ -196,27 +222,33 @@ export default function Page() {
             </Heading>
           </h3>
 
-          <dl className="rireki" style={{ "--rireki-chars": RIREKI_CHARS } as React.CSSProperties}>
-            {HISTORY.map((log, i) => (
-              <div className="rireki-row" key={`${log.date}-${i}`}>
-                <dt>{jpDate(log.date)}</dt>
-                <dd>
-                  {log.text}
-                  {i < 2 ? (
-                    <>
-                      {/* WORD JOINER(幅ゼロ、U+2060)。無いと携帯の狭い版面で
-                          NEW札だけ次の行へ落ちることがあった */}
-                      {"⁠"}
-                      <span className="new">
-                        <img src="/hp/new.gif" alt="new" width={24} height={14} />
-                      </span>
-                    </>
-                  ) : null}
-                </dd>
-              </div>
+          {/* 新しい RIREKI_SHOWN 件だけ開いて見せ、古い分は「むかしの履歴」にたたむ
+              （2026-11-12 ユーザー指示。履歴が長くなってきたので）。
+              たたむのは <details>。JS なしで開け閉めでき、閉じていても中身はページに残る。
+              <dl> の中に <details> は置けないので、<dl> を2つに分けている。 */}
+          <dl className="rireki" style={rirekiStyle}>
+            {HISTORY.slice(0, RIREKI_SHOWN).map((log, i) => (
+              <RirekiRow key={`${log.date}-${i}`} log={log} isNew={i < 2} />
             ))}
           </dl>
-          <p className="note">※あたらしいものが上です。古い分もぜんぶ残しています。</p>
+          {HISTORY.length > RIREKI_SHOWN ? (
+            <details className="rireki-more">
+              <summary>
+                <span className="rireki-more__open">▼ むかしの履歴を見る（{HISTORY.length - RIREKI_SHOWN}件）</span>
+                <span className="rireki-more__close">▲ むかしの履歴をとじる</span>
+              </summary>
+              <dl className="rireki" style={rirekiStyle}>
+                {HISTORY.slice(RIREKI_SHOWN).map((log, i) => (
+                  <RirekiRow key={`${log.date}-${i}`} log={log} isNew={false} />
+                ))}
+              </dl>
+            </details>
+          ) : null}
+          <p className="note">
+            ※あたらしいものが上です。
+            <MobileBreak />
+            古い分も「むかしの履歴」にぜんぶ残しています。
+          </p>
         </section>
 
         {/* ── ふりっぷとは ───────────────────────────
