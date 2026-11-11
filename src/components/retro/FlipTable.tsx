@@ -17,10 +17,13 @@ const CART_SCALE = 2;
  */
 const TITLE_BREAKS: Record<string, string> = {
   friends: "ともだち◆ジェネレーター",
-  osyaberi: "元も子もない◆こすくまくん",
-  ads: "世界一◆広告の多いゲーム",
+  osyaberi: "こすくまくんと◆おしゃべり",
+  ads: "世界で一番◇広告が多いゲーム",
   pancake: "おえかきパンケーキ◇シミュレーター",
   nakayoshi: "なかよしケーキ◇シミュレーター",
+  takoyaki: "大忙し◆たこ焼き屋さん◇シミュレーター",
+  rollice: "なんでもロールアイス◇シミュレーター",
+  kakigori: "ふわふわかき氷◇シミュレーター",
 };
 
 /**
