@@ -14,22 +14,19 @@ export const metadata: Metadata = {
 };
 
 /**
- * 会社HPは viewport の指定を2つ持っている。
- *   <meta name="viewport" content="width=device-width, initial-scale=1">
- *   <meta name="viewport" content="width=1200">
- * 後から書いたほうが勝つので、実際は1200pxの固定幅で出ている。
- * ところが本物の style.css には @media screen and (max-width:480px) が
- * いくつも書いてあり、それが1つも効かない状態になっている。
- * つまり本物は「畳む指定を書いたのに、畳まない指定で塞いでいる」。
+ * 会社HP（kosukuma.com/home.html）にそろえて、携帯でもパソコンと同じ版面で出す。
+ * 会社HPは viewport の指定を2つ持っていて、後から書いた width=1200 が勝っている。
+ * ここも 1200px 固定にする（2026-11-13 ユーザー指示「携帯で見た時、パソコンと同じサイズに」）。
  *
- * ここでは前のほう（device-width）を採る。
- * 1200px固定のままだと、携帯では版面が1/3ほどに縮んで表示され、
- * カセットのラベルの字が1ミリ以下になって読めなかった。
- * 畳めば本物が書いた 480px の指定も本来の役に戻る。
+ * 前は device-width にして、携帯では表を畳んでいた。
+ * 1200px 固定にすると、globals.css の @media (max-width: 1000px / 620px / 480px) は
+ * 携帯でも効かなくなる（会社HPと同じ状態）。携帯だけの改行 MobileBreak も出ない。
  */
 export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
+  width: 1200,
+  // Next.js は既定で initial-scale=1 を足す。付いたままだと携帯は等倍で
+  // 1200px の左端だけを映すので、会社HPと同じく外して画面幅に縮めて出させる。
+  initialScale: undefined,
 };
 
 /**
