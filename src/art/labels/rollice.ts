@@ -5,15 +5,13 @@ import { misakiRow } from "../misaki";
 // なんでもロールアイスシミュレーター — 冷たい鉄板にベースを流して、
 // へらで巻いて、好きなように盛りつける。
 //
-// 図の骨組み: ラベル一面が冷たい鉄板（ヘアラインの地）。
-//   題字は鉄板に刻むように3行（「なんでも」「ロールアイス」「シミュレーター」）。
-//   まんなかの帯に、できあがったカップが10個、手前と奥の互い違いに並ぶ
+// 図の骨組み: 地は冷たい鉄板（ヘアライン）。
+//   できあがったカップ10杯を、奥と手前の2列の互い違いに、画面いっぱいに並べる
 //   （2026-11-13 ユーザー指示「いろんなロールアイスが完成していく様子。10種類ぐらい並ぶ」
-//   「完成された角度にしたい。上からの図ではなくて」。
-//   なのでカップは真上からではなく、お店の完成写真の角度＝やや上の正面から見る）。
-//   どのカップも、側面と、立てて詰めたロール3本の渦と、てっぺんの具が見える。
+//   「完成された角度にしたい。上からの図ではなくて」「字に被ってもいいのでもっと画面一杯に」）。
+//   カップはお店の完成写真の角度＝やや上の正面から。側面のしま、立てたロール3本、てっぺんの具。
 //   味もカップも実物の選択肢から10通り（いちご・チョコ・マンゴー・バタフライピー…）。
-//   右上の空きには、2本のへらを置く。
+//   題字3行はカップの上に重ねる。読めるように白い字を墨で縁どる。
 //
 // 動くもの（1周3秒・12コマ）: 0〜1コマ目は10個ぜんぶ完成した姿（止まっているときの絵）。
 //   2コマ目でカップが空になり、そこから左から順に1コマ1個ずつ、
@@ -28,10 +26,6 @@ const CUP_IN = "#8a8378"; // 空のカップの口の奥
 const SHADOW = "#9aa2ad";
 const SPARK = "#ffffff";
 const SPARK_Y = "#fff3a0";
-const BLADE = "#eef1f4";
-const BLADE_D = "#7c8590";
-const HANDLE = "#2a2a2e";
-const HANDLE_L = "#4a4a52";
 
 // ── 発行元の印 ──────────────────────────────────────────
 // 16枚すべて同じ意匠・同じ位置・同じ大きさ。右下の隅に 5x5 のくまの顔。
@@ -80,73 +74,88 @@ const CUPS: Cup[] = [
 // ミントにはチョコチップを散らす
 const CHIPS_ON = 6;
 
-/** 立てたロール1本の頭（3x3）。角は抜いて丸く。照りと、巻きの芯 */
-const ROLL_TOP = [".L.", "Ldb", ".b."];
+/** 立てたロール1本の頭（4x4）。角は抜いて丸く。照りと、内へ巻きこむ渦 */
+const ROLL_TOP = [".LL.", "Lddb", "Lbdb", ".bb."];
 
-// 左から順に完成する。偶数は手前、奇数は奥（少し上にずれて、手前の陰に半分かくれる）
+// 左から順に完成する。偶数は奥の列（上）、奇数は手前の列（下）。
+// 画面いっぱいに並べるので、右端の1杯はふちで切れる。
 const SLOTS: [number, number][] = Array.from({ length: 10 }, (_, i) => [
-  1 + Math.round(i * 6.55),
-  i % 2 === 0 ? 20 : 18,
+  2 + Math.round(i * 6.5),
+  i % 2 === 0 ? 2 : 17,
 ]);
 
-/** やや上の正面から見たカップ1杯（7x12）。x, y は左上の角 */
+/** やや上の正面から見たカップ1杯（12x20。具はその上へ2段はみ出す）。x, y は左上の角 */
 function drawCup(g: PixelGfx, x: number, y: number, c: Cup, full: boolean, chips: boolean) {
   // 鉄板に落ちる影
-  g.hline(x + 1, y + 12, 6, SHADOW);
-  // カップの側面（7→5へすぼまる）。しまのカップは縦じま
+  g.hline(x + 2, y + 18, 9, SHADOW);
+  // カップの側面（12→8へすぼまる）。2px幅の縦じま
   const body: [number, number][] = [
-    [0, 7],
-    [0, 7],
-    [1, 5],
-    [1, 5],
+    [0, 12],
+    [0, 12],
+    [1, 10],
+    [1, 10],
+    [1, 10],
+    [2, 8],
   ];
   body.forEach(([dx, w], k) => {
-    for (let i = 0; i < w; i++) g.px(x + dx + i, y + 8 + k, (dx + i) % 2 === 0 ? c.rim : c.rim2);
-    g.px(x + dx + w - 1, y + 8 + k, "#00000022"); // 右の陰
+    for (let i = 0; i < w; i++)
+      g.px(x + dx + i, y + 12 + k, ((dx + i) >> 1) % 2 === 0 ? c.rim : c.rim2);
+    g.px(x + dx + w - 1, y + 12 + k, "#00000026"); // 右の陰
+    g.px(x + dx + w - 2, y + 12 + k, "#00000014");
   });
-  g.hline(x + 1, y + 11, 5, "#00000018");
+  g.hline(x + 2, y + 17, 8, "#00000018");
   if (!full) {
     // 空: 口の奥が見えるだけ
-    g.hline(x + 1, y + 6, 5, CUP_IN);
-    g.hline(x, y + 7, 7, c.rim);
-    g.px(x + 1, y + 7, CUP_IN);
-    g.px(x + 5, y + 7, CUP_IN);
-    g.hline(x + 2, y + 7, 3, CUP_IN);
+    g.hline(x + 1, y + 10, 10, CUP_IN);
+    g.hline(x, y + 11, 12, "#ffffff");
+    g.hline(x + 2, y + 11, 8, CUP_IN);
     return;
   }
   // ロール3本。奥のまんなか → 手前の左右の順に描く
-  // ry はカップの上端からの段。頭（3x3）の下から、ふち（7段目）まで胴がのびる
+  // ry はカップの上端からの段。頭（4x4）の下から、ふち（11段目）まで胴がのびる
   const roll = (dx: number, ry: number) => {
     const rx = x + dx;
     const top = y + ry;
-    const h = 7 - (ry + 2);
-    g.rect(rx, top + 2, 3, h, c.b);
-    g.vline(rx, top + 2, h, c.L);
-    g.vline(rx + 2, top + 2, h, c.d);
+    const h = 11 - (ry + 3);
+    g.rect(rx, top + 3, 4, h, c.b);
+    g.vline(rx, top + 3, h, c.L);
+    g.vline(rx + 3, top + 3, h, c.d);
     g.blit(rx, top, ROLL_TOP, { L: c.L, b: c.b, d: c.d });
   };
-  roll(2, 1);
-  roll(0, 2);
   roll(4, 2);
+  roll(0, 4);
+  roll(8, 4);
   if (chips) {
-    g.px(x + 1, y + 6, "#4a2616");
-    g.px(x + 5, y + 5, "#4a2616");
+    g.px(x + 1, y + 8, "#4a2616");
+    g.px(x + 10, y + 9, "#4a2616");
+    g.px(x + 5, y + 7, "#4a2616");
   }
   // カップのふち。ロールの根元の手前
-  g.hline(x, y + 7, 7, "#ffffff");
-  g.px(x + 6, y + 7, "#dcdfe4");
-  // 具はてっぺん、まんなか
-  g.blit(x + 2, y, c.top.rows, c.top.pal);
+  g.hline(x, y + 11, 12, "#ffffff");
+  g.px(x + 11, y + 11, "#dcdfe4");
+  // 具はまんなかのロールの上。3x3の図を2倍で
+  c.top.rows.forEach((row, j) =>
+    [...row].forEach((ch, i) => {
+      const col = c.top.pal[ch];
+      if (col) g.rect(x + 3 + i * 2, y - 2 + j * 2, 2, 2, col);
+    }),
+  );
 }
 
-/** へら（真上から）。四角い刃と、まっすぐ下へのびる黒い柄 */
-function spatula(g: PixelGfx, x: number, y: number) {
-  g.rect(x, y, 5, 5, BLADE);
-  g.vline(x + 4, y, 5, BLADE_D);
-  g.hline(x, y + 4, 5, BLADE_D);
-  g.rect(x + 2, y + 5, 1, 2, BLADE_D);
-  g.rect(x + 1, y + 7, 3, 6, HANDLE);
-  g.vline(x + 1, y + 7, 6, HANDLE_L);
+/** 題字。カップの上に重ねるので、白い字を墨で縁どる（ゲームのロゴのように） */
+function title(g: PixelGfx, x: number, y: number, text: string) {
+  for (const [dx, dy] of [
+    [-1, -1],
+    [0, -1],
+    [1, -1],
+    [-1, 0],
+    [1, 0],
+    [-1, 1],
+    [0, 1],
+    [1, 1],
+  ])
+    misakiRow(g, x + dx, y + dy, text, INK);
+  misakiRow(g, x, y, text, "#ffffff");
 }
 
 export const art: LabelArt = {
@@ -162,42 +171,41 @@ export const art: LabelArt = {
     for (let y = 1; y < 40; y += 2) g.hline(0, y, 68, STEEL_L, "half");
     for (let y = 3; y < 40; y += 6) g.hline(4 + (y % 5), y, 20, STEEL_D, "quarter");
 
-    // ── 題字。鉄板に刻む ─────────────────────────────────
-    misakiRow(g, 3, 2, "なんでも", INK, FROST);
-    misakiRow(g, 3, 10, "ロールアイス", INK, FROST);
-    misakiRow(g, 4, 32, "シミュレーター", INK, FROST);
-
-    // ── 右上の空きに、へら2本 ────────────────────────────
-    spatula(g, 54, 2);
-    spatula(g, 60, 3);
-
-    // ── カップ10個 ───────────────────────────────────────
+    // ── カップ10個。奥の列から ────────────────────────────
     for (const back of [true, false])
       SLOTS.forEach(([x, y], i) => {
-        if ((i % 2 === 1) !== back) return;
+        if ((i % 2 === 0) !== back) return;
         drawCup(g, x, y, CUPS[i], i < doneCount, i === CHIPS_ON);
       });
 
     // いま完成した1個が光る
     if (f >= 2) {
       const [x, y] = SLOTS[f - 2];
-      const cx = x + 3;
-      const cy = y + 4;
+      const cx = x + 6;
+      const cy = y + 6;
       for (const [dx, dy, c] of [
-        [-6, 0, SPARK],
-        [6, 0, SPARK],
-        [0, -6, SPARK_Y],
-        [-5, -4, SPARK_Y],
-        [5, -4, SPARK],
-        [5, 4, SPARK_Y],
-        [-5, 4, SPARK],
-      ] as [number, number, string][])
+        [-8, 0, SPARK],
+        [8, 0, SPARK],
+        [0, -9, SPARK_Y],
+        [-7, -6, SPARK_Y],
+        [7, -6, SPARK],
+        [7, 5, SPARK_Y],
+        [-7, 5, SPARK],
+      ] as [number, number, string][]) {
         g.px(cx + dx, cy + dy, c);
+        g.px(cx + dx + 1, cy + dy, c);
+        g.px(cx + dx, cy + dy + 1, c);
+      }
     }
 
+    // ── 題字。カップの上に重ねる ─────────────────────────
+    title(g, 3, 2, "なんでも");
+    title(g, 3, 10, "ロールアイス");
+    title(g, 4, 32, "シミュレーター");
+
     // ── ふち ─────────────────────────────────────────────
-    // 16枚共通の作法。外周1pxの単色だけ。題字の墨に合わせる。
+    // 16枚共通の作法。外周1pxの単色だけ。題字の縁の墨に合わせる。印は題字と同じ白。
     g.frame(0, 0, 68, 40, INK);
-    mark(g, INK, FROST);
+    mark(g, "#ffffff", INK);
   },
 };
