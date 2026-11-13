@@ -123,7 +123,9 @@ a {
    壁紙は会社HPと同じ bg.gif（150pxのタイルにこすくまが薄く入っている）。
    そして全部まんなか寄せ。ここが効いていて、何を置いても同じ会社に見える。 */
 #home {
-  background: url(/hp/bg.gif);
+  /* 色を先に塗っておく。壁紙のGIFが届くまでの一瞬、ページが真っ白に見えるのを防ぐ
+     （2026-11-13。色は各GIFでいちばん多い色＝地の色）。 */
+  background: #fff3cb url(/hp/bg.gif);
   text-align: center;
 }
 #home img {
@@ -135,30 +137,39 @@ a {
    9枚とも tools/make-bg.py が bg.gif から起こしたもの。
    色相の順にならべてある（黄緑→青緑→水→青紫→紫→桜→桃→橙、最後に灰） */
 #home[data-fl-bg="wakaba"] {
+  background-color: #eaf7e5;
   background-image: url(/hp/bg_wakaba.gif);
 }
 #home[data-fl-bg="mint"] {
+  background-color: #dbf9f7;
   background-image: url(/hp/bg_mint.gif);
 }
 #home[data-fl-bg="mizu"] {
+  background-color: #daf1ff;
   background-image: url(/hp/bg_mizu.gif);
 }
 #home[data-fl-bg="sky"] {
+  background-color: #eaebff;
   background-image: url(/hp/bg_sky.gif);
 }
 #home[data-fl-bg="sumire"] {
+  background-color: #fcedff;
   background-image: url(/hp/bg_sumire.gif);
 }
 #home[data-fl-bg="sakura"] {
+  background-color: #ffe5ed;
   background-image: url(/hp/bg_sakura.gif);
 }
 #home[data-fl-bg="peach"] {
+  background-color: #ffe3df;
   background-image: url(/hp/bg_peach.gif);
 }
 #home[data-fl-bg="anzu"] {
+  background-color: #ffeadc;
   background-image: url(/hp/bg_anzu.gif);
 }
 #home[data-fl-bg="hai"] {
+  background-color: #f3f3f3;
   background-image: url(/hp/bg_hai.gif);
 }
 
