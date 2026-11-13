@@ -5,12 +5,13 @@ import { misakiRow } from "../misaki";
 // なんでもロールアイスシミュレーター — 冷たい鉄板にベースを流して、
 // へらで巻いて、好きなように盛りつける。
 //
-// 図の骨組み: ラベル一面が冷たい鉄板で、真上から見下ろす。
+// 図の骨組み: ラベル一面が冷たい鉄板（ヘアラインの地）。
 //   題字は鉄板に刻むように3行（「なんでも」「ロールアイス」「シミュレーター」）。
-//   まんなかの帯に、できあがったカップが10個、2列の互い違いに並ぶ
-//   （2026-11-13 ユーザー指示「いろんなロールアイスが完成していく様子。10種類ぐらい並ぶ」。
-//   その前の版は、くぼみでベースを巻くところと、完成品1つだった）。
-//   どのカップも真上から見ると、立てて詰めたロール4本の渦と、てっぺんの具。
+//   まんなかの帯に、できあがったカップが10個、手前と奥の互い違いに並ぶ
+//   （2026-11-13 ユーザー指示「いろんなロールアイスが完成していく様子。10種類ぐらい並ぶ」
+//   「完成された角度にしたい。上からの図ではなくて」。
+//   なのでカップは真上からではなく、お店の完成写真の角度＝やや上の正面から見る）。
+//   どのカップも、側面と、立てて詰めたロール3本の渦と、てっぺんの具が見える。
 //   味もカップも実物の選択肢から10通り（いちご・チョコ・マンゴー・バタフライピー…）。
 //   右上の空きには、2本のへらを置く。
 //
@@ -23,8 +24,7 @@ const STEEL_L = "#d3d8de";
 const STEEL_D = "#9ea6b0";
 const FROST = "#eef2f6";
 const INK = "#26313f";
-const CUP_IN = "#e6e2da"; // 空のカップの底
-const CUP_IN_D = "#cdc7bc"; // 空のカップの内側の影
+const CUP_IN = "#8a8378"; // 空のカップの口の奥
 const SHADOW = "#9aa2ad";
 const SPARK = "#ffffff";
 const SPARK_Y = "#fff3a0";
@@ -53,7 +53,7 @@ const T_GUMMY: Topping = { rows: ["o.o", "ooo", "o.o"], pal: { o: "#ff8a2a" } };
 const T_COOKIE: Topping = { rows: ["kkk", "kwk", "kkk"], pal: { k: "#2a2420", w: "#f4f0e8" } };
 const T_CHIP: Topping = { rows: ["c.c", ".c.", "c.c"], pal: { c: "#4a2616" } };
 
-/** 1杯ぶん。ロールの色（照り・地・芯と影）、カップのふちの色、具 */
+/** 1杯ぶん。ロールの色（照り・地・芯と影）、カップの側面の色2つ（交互に塗ってしまにする）、具 */
 type Cup = { L: string; b: string; d: string; rim: string; rim2: string; top: Topping };
 const CUPS: Cup[] = [
   // いちご × ピンクのカップ
@@ -80,56 +80,63 @@ const CUPS: Cup[] = [
 // ミントにはチョコチップを散らす
 const CHIPS_ON = 6;
 
-/** 真上から見たカップ（9x9）。ふちの輪。r と q が交互で「しま」になる */
-const RIM = ["..rqrqr..", ".q.....q.", "r.......r", "q.......q", "r.......r", "q.......q", "r.......r", ".q.....q.", "..rqrqr.."];
-/** 立てたロール1本（3x3）。角を影の色で落として丸く。左上に照り、まんなかに巻きの芯 */
-const ROLL = ["oLb", "Ldb", "bbo"];
+/** 立てたロール1本の頭（3x3）。角は抜いて丸く。照りと、巻きの芯 */
+const ROLL_TOP = [".L.", "Ldb", ".b."];
 
-// 2列の互い違い。左上の角（x, y）。完成する順に左から並べる
-const SLOTS: [number, number][] = [
-  [2, 17],
-  [8, 23],
-  [15, 17],
-  [21, 23],
-  [27, 17],
-  [33, 23],
-  [40, 17],
-  [46, 23],
-  [52, 17],
-  [58, 23],
-];
+// 左から順に完成する。偶数は手前、奇数は奥（少し上にずれて、手前の陰に半分かくれる）
+const SLOTS: [number, number][] = Array.from({ length: 10 }, (_, i) => [
+  1 + Math.round(i * 6.55),
+  i % 2 === 0 ? 20 : 18,
+]);
 
+/** やや上の正面から見たカップ1杯（7x12）。x, y は左上の角 */
 function drawCup(g: PixelGfx, x: number, y: number, c: Cup, full: boolean, chips: boolean) {
-  // 鉄板に落ちる影（右下へ1px）
-  g.disc(x + 5, y + 5, 4, SHADOW);
-  // カップの中（空の底）
-  g.rect(x + 2, y + 1, 5, 7, CUP_IN);
-  g.rect(x + 1, y + 2, 7, 5, CUP_IN);
-  g.hline(x + 2, y + 1, 5, CUP_IN_D);
-  g.vline(x + 1, y + 2, 5, CUP_IN_D);
-  g.blit(x, y, RIM, { r: c.rim, q: c.rim2 });
-  if (!full) return;
-  // ロール4本（2x2）。すきまはロールの影の色で、1本ずつ丸く浮かせる
-  g.rect(x + 1, y + 4, 7, 1, c.d);
-  g.rect(x + 4, y + 1, 1, 7, c.d);
-  for (const [dx, dy] of [
-    [1, 1],
-    [5, 1],
+  // 鉄板に落ちる影
+  g.hline(x + 1, y + 12, 6, SHADOW);
+  // カップの側面（7→5へすぼまる）。しまのカップは縦じま
+  const body: [number, number][] = [
+    [0, 7],
+    [0, 7],
     [1, 5],
-    [5, 5],
-  ])
-    g.blit(x + dx, y + dy, ROLL, { L: c.L, b: c.b, d: c.d, o: c.d });
-  // ふちで欠ける角を戻す
-  g.px(x + 1, y + 1, c.rim2);
-  g.px(x + 7, y + 1, c.rim2);
-  g.px(x + 1, y + 7, c.rim2);
-  g.px(x + 7, y + 7, c.rim2);
-  if (chips) {
-    g.px(x + 3, y + 2, "#4a2616");
-    g.px(x + 6, y + 6, "#4a2616");
+    [1, 5],
+  ];
+  body.forEach(([dx, w], k) => {
+    for (let i = 0; i < w; i++) g.px(x + dx + i, y + 8 + k, (dx + i) % 2 === 0 ? c.rim : c.rim2);
+    g.px(x + dx + w - 1, y + 8 + k, "#00000022"); // 右の陰
+  });
+  g.hline(x + 1, y + 11, 5, "#00000018");
+  if (!full) {
+    // 空: 口の奥が見えるだけ
+    g.hline(x + 1, y + 6, 5, CUP_IN);
+    g.hline(x, y + 7, 7, c.rim);
+    g.px(x + 1, y + 7, CUP_IN);
+    g.px(x + 5, y + 7, CUP_IN);
+    g.hline(x + 2, y + 7, 3, CUP_IN);
+    return;
   }
-  // 具はまんなか
-  g.blit(x + 3, y + 3, c.top.rows, c.top.pal);
+  // ロール3本。奥のまんなか → 手前の左右の順に描く
+  // ry はカップの上端からの段。頭（3x3）の下から、ふち（7段目）まで胴がのびる
+  const roll = (dx: number, ry: number) => {
+    const rx = x + dx;
+    const top = y + ry;
+    const h = 7 - (ry + 2);
+    g.rect(rx, top + 2, 3, h, c.b);
+    g.vline(rx, top + 2, h, c.L);
+    g.vline(rx + 2, top + 2, h, c.d);
+    g.blit(rx, top, ROLL_TOP, { L: c.L, b: c.b, d: c.d });
+  };
+  roll(2, 1);
+  roll(0, 2);
+  roll(4, 2);
+  if (chips) {
+    g.px(x + 1, y + 6, "#4a2616");
+    g.px(x + 5, y + 5, "#4a2616");
+  }
+  // カップのふち。ロールの根元の手前
+  g.hline(x, y + 7, 7, "#ffffff");
+  g.px(x + 6, y + 7, "#dcdfe4");
+  // 具はてっぺん、まんなか
+  g.blit(x + 2, y, c.top.rows, c.top.pal);
 }
 
 /** へら（真上から）。四角い刃と、まっすぐ下へのびる黒い柄 */
@@ -165,15 +172,16 @@ export const art: LabelArt = {
     spatula(g, 60, 3);
 
     // ── カップ10個 ───────────────────────────────────────
-    SLOTS.forEach(([x, y], i) => {
-      const full = i < doneCount;
-      drawCup(g, x, y, CUPS[i], full, i === CHIPS_ON);
-    });
+    for (const back of [true, false])
+      SLOTS.forEach(([x, y], i) => {
+        if ((i % 2 === 1) !== back) return;
+        drawCup(g, x, y, CUPS[i], i < doneCount, i === CHIPS_ON);
+      });
 
     // いま完成した1個が光る
     if (f >= 2) {
       const [x, y] = SLOTS[f - 2];
-      const cx = x + 4;
+      const cx = x + 3;
       const cy = y + 4;
       for (const [dx, dy, c] of [
         [-6, 0, SPARK],
