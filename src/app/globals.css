@@ -1173,3 +1173,21 @@ a {
     transition: none;
   }
 }
+
+/* ── 携帯（タッチの端末）では字を太く、濃くする ──────────
+   2026-11-13 から携帯でもパソコンと同じ 1200px の版面を縮めて出している（layout.tsx）。
+   縮めると細い字の線が1px を割って、薄く・かすれて見える（ユーザー報告「文字が薄くて見づらい」）。
+   幅の @media はもう携帯で効かないので、タッチの端末かどうかで見分ける。
+   字の形は変えず、線を少しだけ太らせて、灰色の字を濃くする。パソコンは変わらない。 */
+@media (hover: none) and (pointer: coarse) {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-stroke: 0.7px currentColor;
+  }
+  #home .cont02 table td.t-ttl .nolink,
+  #home .bgpick-bar {
+    color: #333333;
+  }
+}
+
