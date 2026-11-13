@@ -6,7 +6,7 @@ import { misakiRow } from "../misaki";
 // へらで巻いて、好きなように盛りつける。
 //
 // 図の骨組み: 地は冷たい鉄板（ヘアライン）。
-//   できあがったカップ10杯を、奥と手前の2列の互い違いに、画面いっぱいに並べる
+//   できあがったカップ15杯（味は10種類）を、3段の互い違いに、画面いっぱいに並べる
 //   （2026-11-13 ユーザー指示「いろんなロールアイスが完成していく様子。10種類ぐらい並ぶ」
 //   「完成された角度にしたい。上からの図ではなくて」「字に被ってもいいのでもっと画面一杯に」）。
 //   カップは料理写真の「斜め45度」から見下ろす（同日「斜め45度から見てるように」）。
@@ -14,11 +14,12 @@ import { misakiRow } from "../misaki";
 //   味もカップも実物の選択肢から10通り（いちご・チョコ・マンゴー・バタフライピー…）。
 //   飾りは実物のトッピングから1杯に2〜4つ（クリーム・マカロン・ミニドーナツ・くまのグミ・
 //   ぺろぺろキャンディ・わたあめ・ハートのチョコ・ソース・粒…）（同日「いろんな飾り付けが欲しい」）。
-//   飾りが隠れないよう、カップは上半分に並べ、題字3行は下半分のカップの胴に重ねる。
+//   飾りが隠れないよう、上2段は題字より上に頭を出し、題字3行は下半分に重ねる。
+//   いちばん手前の段は題字の裏から下のふちまでを埋める（同日「もっと画面いっぱいに」）。
 //   読めるように白い字を墨で縁どる。
 //
 // 動くもの（1周3秒・12コマ）: 0〜1コマ目は10個ぜんぶ完成した姿（止まっているときの絵）。
-//   2コマ目でカップが空になり、そこから左から順に1コマ1個ずつ、
+//   2コマ目でカップが空になり、そこから左から順に1コマ1〜2杯ずつ、
 //   ロールが詰まって具がのり、きらっと光って完成していく。
 
 const STEEL = "#c4cad1";
@@ -242,13 +243,17 @@ const CUPS: Cup[] = [
 /** 立てたロール1本の頭（4x3）。斜め45度から見るので、まるい渦が縦につぶれて楕円に */
 const ROLL_TOP = [".LL.", "Ldbb", ".bb."];
 
-// 左から順に完成する。偶数は奥の列（6px上）、奇数は手前の列。飾りが見えるよう上半分に並べ、
-// 題字は下半分のカップの胴に重ねる。
-// 画面いっぱいに並べるので、右端の1杯はふちで切れる。
-const SLOTS: [number, number][] = Array.from({ length: 10 }, (_, i) => [
-  2 + Math.round(i * 6.5),
-  i % 2 === 0 ? 5 : 11,
-]);
+// 3段×5杯。上の段ほど奥。画面いっぱいに並べるので、ふちで切れる杯もある。
+// 上2段は飾りが見えるよう題字より上に頭を出し、いちばん手前の段は題字の裏から下のふちまでを埋める。
+// 味は10種類。手前の段は並びをずらして、隣どうしが同じ味にならないようにする。
+// [x, y, 味]
+const SLOTS: [number, number, number][] = [
+  ...[0, 1, 2, 3, 4].map((k): [number, number, number] => [2 + k * 13, 4, k * 2]),
+  ...[0, 1, 2, 3, 4].map((k): [number, number, number] => [8 + k * 13, 11, k * 2 + 1]),
+  ...[0, 1, 2, 3, 4].map((k): [number, number, number] => [2 + k * 13, 19, [5, 8, 1, 4, 7][k]]),
+];
+// 完成する順。左から（x の小さい順、同じ x なら奥から）
+const ORDER = SLOTS.map((_, i) => i).sort((a, b) => SLOTS[a][0] - SLOTS[b][0] || SLOTS[a][1] - SLOTS[b][1]);
 
 /** 斜め上45度から見下ろしたカップ1杯（12x19。飾りはその上へはみ出す）。x, y は左上の角。
  *  口は横12・縦7の楕円。中に立てたロール5本（奥2・手前3）の頭の渦が見え、下に側面がのぞく */
@@ -359,8 +364,10 @@ export const art: LabelArt = {
   swatch: [STEEL, "#f4a6b8", "#8a5232", "#ffc23a", "#5a7ae0"],
   draw: (g, t) => {
     const f = Math.round(t * 12) % 12;
-    // いま何個できているか。0〜1コマ目は全部、2コマ目から1個ずつ
-    const doneCount = f < 2 ? SLOTS.length : f - 1;
+    // いま何杯できているか。0〜1コマ目は全部、2〜11コマ目の10コマで15杯を順に
+    const doneCount = f < 2 ? SLOTS.length : Math.round(((f - 1) * SLOTS.length) / 10);
+    const prevCount = f < 3 ? 0 : Math.round(((f - 2) * SLOTS.length) / 10);
+    const done = new Set(ORDER.slice(0, doneCount));
 
     // ── 鉄板（ヘアライン） ────────────────────────────────
     g.rect(0, 0, 68, 40, STEEL);
@@ -368,32 +375,29 @@ export const art: LabelArt = {
     for (let y = 3; y < 40; y += 6)
       g.hline(4 + (y % 5), y, 20, STEEL_D, "quarter");
 
-    // ── カップ10個。奥の列から ────────────────────────────
-    for (const back of [true, false])
-      SLOTS.forEach(([x, y], i) => {
-        if ((i % 2 === 0) !== back) return;
-        drawCup(g, x, y, CUPS[i], i < doneCount);
-      });
+    // ── カップ15杯。奥の段から ────────────────────────────
+    SLOTS.forEach(([x, y, k], i) => drawCup(g, x, y, CUPS[k], done.has(i)));
 
-    // いま完成した1個が光る
-    if (f >= 2) {
-      const [x, y] = SLOTS[f - 2];
-      const cx = x + 6;
-      const cy = y + 6;
-      for (const [dx, dy, c] of [
-        [-8, 0, SPARK],
-        [8, 0, SPARK],
-        [0, -9, SPARK_Y],
-        [-7, -6, SPARK_Y],
-        [7, -6, SPARK],
-        [7, 5, SPARK_Y],
-        [-7, 5, SPARK],
-      ] as [number, number, string][]) {
-        g.px(cx + dx, cy + dy, c);
-        g.px(cx + dx + 1, cy + dy, c);
-        g.px(cx + dx, cy + dy + 1, c);
+    // いま完成した杯が光る
+    if (f >= 2)
+      for (const i of ORDER.slice(prevCount, doneCount)) {
+        const [x, y] = SLOTS[i];
+        const cx = x + 6;
+        const cy = y + 6;
+        for (const [dx, dy, c] of [
+          [-8, 0, SPARK],
+          [8, 0, SPARK],
+          [0, -9, SPARK_Y],
+          [-7, -6, SPARK_Y],
+          [7, -6, SPARK],
+          [7, 5, SPARK_Y],
+          [-7, 5, SPARK],
+        ] as [number, number, string][]) {
+          g.px(cx + dx, cy + dy, c);
+          g.px(cx + dx + 1, cy + dy, c);
+          g.px(cx + dx, cy + dy + 1, c);
+        }
       }
-    }
 
     // ── 題字。カップの上に重ねる ─────────────────────────
     title(g, 3, 16, "なんでも");
