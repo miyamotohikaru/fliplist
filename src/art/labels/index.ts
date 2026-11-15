@@ -23,6 +23,9 @@ import { art as art_rollice } from "./rollice";
 import { art as art_kakigori } from "./kakigori";
 import { art as art_hakusen } from "./hakusen";
 import { art as art_todofuken_spin } from "./todofuken-spin";
+import { art as art_butsukari } from "./butsukari";
+import { art as art_ka_seibai } from "./ka-seibai";
+import { art as art_bouquet } from "./bouquet";
 
 // 並び順は flips.ts と揃えてある。
 const ALL: LabelArt[] = [
@@ -50,6 +53,9 @@ const ALL: LabelArt[] = [
   art_hakusen,
   art_todofuken_spin,
   art_kakigori,
+  art_butsukari,
+  art_ka_seibai,
+  art_bouquet,
 ];
 
 export const LABELS: Record<string, LabelArt> = Object.fromEntries(
