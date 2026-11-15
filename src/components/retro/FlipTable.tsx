@@ -50,10 +50,11 @@ const TITLE_BREAKS: Record<string, string> = {
  * tBodies[0].rows を裏返すため。ここを thead にすると見出しが回らない。
  */
 /**
- * 表の並び。公開中のものを上に、工事中のものをその下に。
- * それぞれの中は flips.ts の並び（＝リリース日の順）のまま。
+ * 表に出すのは公開中のものだけ。並びは flips.ts の並び（＝リリース日の順）のまま。
+ * 工事中のものは表に出さない（2026-11-15 ユーザー指示「工事中のゲーム、見えないようにしてほしい」）。
+ * データは flips.ts に残してあるので、status を "released" にして url を入れれば表に出る。
  */
-const ROWS: Flip[] = [...FLIPS.filter(isOpen), ...FLIPS.filter((f) => !isOpen(f))];
+const ROWS: Flip[] = FLIPS.filter(isOpen);
 
 export default function FlipTable() {
   return (
