@@ -6,7 +6,7 @@ import Marquee from "@/components/retro/Marquee";
 import MobileBreak from "@/components/retro/MobileBreak";
 import NoRightClick from "@/components/retro/NoRightClick";
 import Tricks from "@/components/retro/Tricks";
-import { CLOSED_COUNT, HISTORY, jpDate, OPENED, PAGE_MADE } from "@/components/retro/util";
+import { HISTORY, jpDate, OPENED, PAGE_MADE } from "@/components/retro/util";
 import { FLIP_DEFINITION } from "@/data/flips";
 
 const HOME = "https://kosukuma.com/home.html";
@@ -177,7 +177,7 @@ export default function Page() {
 
           <p className="note">
             <BreakText
-              text={`※いまあそべるのは${OPENED.length}本です。◆　これからできるものも、できた順にならべてあります。`}
+              text={`※いまあそべるのは${OPENED.length}本です。◆　できた順にならべてあります。`}
             />
             <br />
             <BreakText text="※ふりっぷは随時ふえていきます。" />
@@ -197,13 +197,6 @@ export default function Page() {
           </div>
 
           <p className="note note--foot">
-            ※<span className="kouji">工事中</span>
-            のふりっぷは、まだできていません。
-            <MobileBreak />
-            　公開までしばらくお待ちください。
-            <br />
-            ※<span className="kouji">工事中</span>のふりっぷは押せません（{CLOSED_COUNT}本あります）。
-            <br />
             ※あそべるふりっぷは、押すとあたらしい窓でひらきます。
           </p>
           {/* 表が長いので、当時の作法どおり節の終わりにもどり道を1つ置く */}
