@@ -25,6 +25,8 @@ const TITLE_BREAKS: Record<string, string> = {
   rollice: "なんでもロールアイス◇シミュレーター",
   kakigori: "ふわふわかき氷◇シミュレーター",
   "todofuken-spin": "都道府県◆スピンバトル",
+  "ka-seibai": "オフィスに侵入した◇蚊を成敗する。",
+  bouquet: "お花屋さん◇シミュレーター",
 };
 
 /**
