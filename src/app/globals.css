@@ -1210,6 +1210,12 @@ a {
   text-align: left;
   font-size: 15px;
   line-height: 1.85;
+  /* iPhone は 1200px 固定の版面（layout.tsx）を縮めて出すとき、長い段落の字だけを
+     勝手に倍ほどに拡大する（文字の自動拡大）。すると PC の幅で決めた改行とぶつかって
+     「遊／べます」のような折り返しになる（2026-11-20 実機の報告）。
+     携帯でもパソコンと同じ字の大きさ・同じ改行で見せるため、拡大を止める */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 #home .doc p {
   margin-bottom: 10px;
