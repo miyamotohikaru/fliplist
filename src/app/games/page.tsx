@@ -10,6 +10,24 @@ export const metadata: Metadata = {
     "こす.くまがブラウザで公開している「ふりっぷ」（ゲームや小さなあそび）の、内容と遊び方の説明ページです。",
 };
 
+/**
+ * 「どんなもの」の説明は、読点（、）のあとで改行する
+ * （2026-11-19 ユーザー指示「どんなものの説明、、で改行させて」）。
+ */
+function CommaBreaks({ text }: { text: string }) {
+  const parts = text.split(/(?<=、)/);
+  return (
+    <>
+      {parts.map((t, i) => (
+        <span key={i}>
+          {i > 0 ? <br /> : null}
+          {t}
+        </span>
+      ))}
+    </>
+  );
+}
+
 /** 遊び方のページがあるもの。公開日のあたらしい順（更新履歴と同じ） */
 const LIST = OPENED.filter((f) => GUIDES[f.slug]);
 
@@ -70,7 +88,7 @@ export default function GamesPage() {
                     <a href={`/games/${f.slug}`}>{f.title}</a>
                   </td>
                   <td className="t-desc">
-                    {GUIDES[f.slug].lead}
+                    <CommaBreaks text={GUIDES[f.slug].lead} />
                     <br />
                     <a className="more" href={`/games/${f.slug}`}>
                       ▶遊び方を読む
