@@ -2,6 +2,7 @@ import { FLIPS, type Flip } from "@/data/flips";
 import Cartridge from "@/components/Cartridge";
 import BreakText from "./BreakText";
 import { canOpen, isOpen } from "./util";
+import { GUIDES } from "@/data/guides";
 
 /**
  * カセットの絵の倍率。88x64 のドット絵なので、2倍で 176x128。
@@ -132,7 +133,18 @@ function Row({ flip, n }: { flip: Flip; n: number }) {
         <span className="t-sub">{flip.desc ? <BreakText text={flip.desc} /> : "―"}</span>
       </td>
       {/* 内容はシートの言葉のまま。空のものは昔の表と同じで「―」 */}
-      <td className="t-desc">{flip.desc ? <BreakText text={flip.desc} /> : "―"}</td>
+      <td className="t-desc">
+        {flip.desc ? <BreakText text={flip.desc} /> : "―"}
+        {/* 遊び方の説明ページへ（2026-11-19 AdSense の審査向けに足した） */}
+        {GUIDES[flip.slug] ? (
+          <>
+            <br />
+            <a className="more" href={`/games/${flip.slug}`}>
+              ▶遊び方
+            </a>
+          </>
+        ) : null}
+      </td>
       <td className="t-state">
         {open ? <span className="open">公開中</span> : <span className="kouji">工事中</span>}
       </td>
