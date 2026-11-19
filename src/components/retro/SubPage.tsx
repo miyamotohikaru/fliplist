@@ -46,7 +46,9 @@ export default function SubPage({
         </p>
       </header>
 
-      <main>
+      {/* iPhone の文字の自動拡大を止める（globals.css の #home .doc の注を参照）。
+          -webkit- の付いた書き方は CSS に書いても書き出しのときに消されるので、ここに直接書く */}
+      <main style={{ WebkitTextSizeAdjust: "100%" }}>
         {/* --len は携帯で題を1行に収めるための字数（globals.css の .pagettl--sub） */}
         <h1
           className="pagettl pagettl--sub"
