@@ -1,3 +1,4 @@
+import EditMode from "./EditMode";
 import Heading from "./Heading";
 import Marquee from "./Marquee";
 import NoRightClick from "./NoRightClick";
@@ -30,6 +31,8 @@ export default function SubPage({
   return (
     <>
       <NoRightClick />
+      {/* ?edit のときだけ出る改行の調整モード */}
+      <EditMode />
       <Marquee />
 
       <header className="header" id="top">
