@@ -1191,3 +1191,124 @@ a {
   }
 }
 
+
+/* ── 下の階のページ（遊び方・運営者情報・プライバシーポリシー） ─────
+   Google AdSense の審査向けに足したページ（2026-11-19）。
+   一覧ページと同じ部品で組む。本文の箱は「ふりっぷとは」（.def）と同じ
+   白地・黄緑の inset 罫で、幅は表と同じ900px。 */
+#home .pagettl--sub {
+  margin-top: 48px;
+}
+#home .doc {
+  width: 900px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 24px 32px 28px;
+  border: solid 2px yellowgreen;
+  border-style: inset;
+  background: #ffffff;
+  text-align: left;
+  font-size: 15px;
+  line-height: 1.85;
+}
+#home .doc p {
+  margin-bottom: 10px;
+}
+#home .doc p:last-child {
+  margin-bottom: 0;
+}
+/* 項目の見出し。当時の作法で、頭に■、下に点線 */
+#home .doc h2 {
+  margin: 30px 0 10px;
+  padding-bottom: 4px;
+  border-bottom: dotted 2px #9acd32;
+  font-size: 17px;
+  font-weight: bold;
+  color: #006400;
+}
+#home .doc h2::before {
+  content: "■";
+  margin-right: 6px;
+  color: orangered;
+}
+/* 箇条書きの点は一覧ページのもくじと同じ矢印のGIF */
+#home .doc ul {
+  margin: 0 0 10px;
+}
+#home .doc ul li {
+  padding-left: 20px;
+  background: url(/hp/arrow_list.gif) no-repeat;
+  background-position: left top 10px;
+}
+#home .doc ol {
+  margin: 0 0 10px;
+  padding-left: 2em;
+  list-style: decimal;
+}
+#home .doc ol li {
+  margin-bottom: 4px;
+  list-style: decimal;
+}
+#home .doc-table {
+  margin: 8px 0 12px;
+  border-collapse: separate;
+}
+#home .doc-table th,
+#home .doc-table td {
+  border: solid 2px yellowgreen;
+  border-style: inset;
+  padding: 4px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+#home .doc-table th {
+  width: 120px;
+  background: #f4ffd8;
+  white-space: nowrap;
+}
+#home .doc-date {
+  margin-top: 16px;
+  text-align: right;
+  font-size: 13px;
+}
+/* 1本ずつの説明ページの頭。カセットとひとことを横にならべる */
+#home .game-head {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding-bottom: 6px;
+}
+#home .game-head .cartlink {
+  flex: none;
+  line-height: 0;
+}
+#home .game-lead {
+  font-size: 17px;
+  font-weight: bold;
+}
+#home .game-play {
+  margin-top: 14px;
+  font-size: 16px;
+  font-weight: bold;
+}
+#home .game-nav {
+  width: 900px;
+  max-width: 100%;
+  margin: 16px auto 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 13px;
+}
+#home .cont02 td.t-desc .more {
+  font-size: 13px;
+}
+/* 下の階への道。一覧ページの奥付にも同じ1行を置く */
+#home .sitelinks {
+  margin-top: 64px;
+  font-size: 14px;
+}
+#home .sitelinks .bar {
+  margin: 0 10px;
+  color: #333333;
+}

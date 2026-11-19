@@ -5,6 +5,7 @@ import Heading from "@/components/retro/Heading";
 import Marquee from "@/components/retro/Marquee";
 import MobileBreak from "@/components/retro/MobileBreak";
 import NoRightClick from "@/components/retro/NoRightClick";
+import { SiteLinks } from "@/components/retro/SubPage";
 import Tricks from "@/components/retro/Tricks";
 import { HISTORY, jpDate, OPENED, PAGE_MADE } from "@/components/retro/util";
 import { FLIP_DEFINITION } from "@/data/flips";
@@ -297,6 +298,9 @@ export default function Page() {
             <a href={CONTACT}>お問い合わせ</a>
             からどうぞ。
           </p>
+
+          {/* 遊び方・運営者情報・プライバシーポリシーへの道（2026-11-19 AdSense の審査向けに足した） */}
+          <SiteLinks />
 
           <p className="back">
             <a href="#top">▲このページの先頭へもどる</a>
