@@ -26,6 +26,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+/** 文の中の改行（\n）を <br> にする。改行の位置は guides.ts の文に直接書く */
+function Lines({ text }: { text: string }) {
+  const parts = text.split("\n");
+  return (
+    <>
+      {parts.map((t, i) => (
+        <span key={i}>
+          {i > 0 ? <br /> : null}
+          {t}
+        </span>
+      ))}
+    </>
+  );
+}
+
 /** 行き先の言い方。Chrome の拡張機能は配布ページへ、それ以外はゲーム本体へ */
 function playLabel(url: string): string {
   if (/chromewebstore\.google\.com|h1\.nu/.test(url))
@@ -69,7 +84,9 @@ export default async function GamePage({ params }: Props) {
               <Cartridge flip={f} scale={3} animate flat />
             </a>
             <div className="game-head__txt">
-              <p className="game-lead">{g.lead}</p>
+              <p className="game-lead">
+                <Lines text={g.lead} />
+              </p>
               <p className="game-play">
                 <a href={f.url} target="_blank" rel="noopener noreferrer">
                   {playLabel(f.url)}
@@ -80,24 +97,32 @@ export default async function GamePage({ params }: Props) {
 
           <h2>どんなもの？</h2>
           {g.about.map((p) => (
-            <p key={p}>{p}</p>
+            <p key={p}>
+              <Lines text={p} />
+            </p>
           ))}
 
           <h2>遊び方・操作</h2>
           <ol>
             {g.howto.map((p) => (
-              <li key={p}>{p}</li>
+              <li key={p}>
+                <Lines text={p} />
+              </li>
             ))}
           </ol>
 
           <h2>こだわり・ポイント</h2>
           {g.point.map((p) => (
-            <p key={p}>{p}</p>
+            <p key={p}>
+              <Lines text={p} />
+            </p>
           ))}
 
           <h2>遊べる環境</h2>
           {g.env.map((p) => (
-            <p key={p}>{p}</p>
+            <p key={p}>
+              <Lines text={p} />
+            </p>
           ))}
         </div>
 
