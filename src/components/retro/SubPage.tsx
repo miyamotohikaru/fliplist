@@ -47,7 +47,11 @@ export default function SubPage({
       </header>
 
       <main>
-        <h1 className="pagettl pagettl--sub">
+        {/* --len は携帯で題を1行に収めるための字数（globals.css の .pagettl--sub） */}
+        <h1
+          className="pagettl pagettl--sub"
+          style={{ "--len": title.length } as React.CSSProperties}
+        >
           <Heading variant="lime" size={titleSize} weight={500}>
             {title}
           </Heading>

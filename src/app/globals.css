@@ -1303,6 +1303,50 @@ a {
 #home .cont02 td.t-desc .more {
   font-size: 13px;
 }
+/* ── 下の階のページを携帯で読むとき（2026-11-19 ユーザー「携帯だと変。改行が変」）──
+   ・パソコンの幅で決めた改行（PcBreak）は消して、自然な折り返しに任せる
+   ・表と説明ページの頭が版面からはみ出していたので、中に収める */
+@media screen and (max-width: 620px) {
+  .pc-break {
+    display: none;
+  }
+  #home .doc {
+    padding: 18px 16px 20px;
+  }
+  /* 長いメールアドレスやURLは、どこでも折り返してよい */
+  #home .doc a {
+    overflow-wrap: anywhere;
+  }
+  #home .doc-table {
+    width: 100%;
+  }
+  #home .doc-table th,
+  #home .doc-table td {
+    padding: 4px 8px;
+    overflow-wrap: anywhere;
+  }
+  #home .doc-table th {
+    width: auto;
+  }
+  /* ページ名は1行に収める。字数（--len、SubPage.tsx）で割った大きさにし、30pxを上限にする */
+  #home .pagettl--sub .wa {
+    font-size: min(30px, calc((100vw - 48px) / var(--len))) !important;
+  }
+  /* カセットとひとことは横並びをやめて縦に積む */
+  #home .game-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  /* 遊び方の一覧では「どんなもの」が主役なので、一覧ページ(9px)より大きく */
+  #home .cont02 td.t-ttl .t-sub--guide {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  #home .cont02 td.t-ttl .t-sub--guide .more {
+    font-size: 12px;
+  }
+}
 /* 下の階への道。一覧ページの奥付にも同じ1行を置く */
 #home .sitelinks {
   margin-top: 64px;

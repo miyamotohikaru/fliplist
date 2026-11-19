@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import PcBreak from "@/components/retro/PcBreak";
 import SubPage, { CONTACT, MAIL } from "@/components/retro/SubPage";
 
 export const metadata: Metadata = {
@@ -65,24 +66,24 @@ export default function CompanyPage() {
           <h2>事業内容</h2>
           <p>
             当社は、各種企画の立案および実施を通じて、社会に対して新たな気づきや考えるきっかけを提供することを目的に
-            <br />
+            <PcBreak />
             事業を行っています。展示、イベント、キャンペーン、制作物、映像、SNS発信、参加型企画など、
-            <br />
+            <PcBreak />
             内容に応じた手法で企画をかたちにしています。
           </p>
           <p>
             中核となる「FLIP事業」では、企画テーマの設定から、構成の検討、実施方法の設計、発信、実施後の反応確認までを
-            <br />
+            <PcBreak />
             一連の流れとして扱っています。
           </p>
 
           <h2>ふりっぷ（ゲーム・小さなあそび）について</h2>
           <p>
             「ふりっぷ」は、こす.くまがつくる小さなあそびや実験です。日常を、ほんの少しひっくり返すきっかけとして、
-            <br />
+            <PcBreak />
             ブラウザで遊べるゲームやツールを公開しています。一覧は
             <a href="/">ふりっぷ一覧</a>、それぞれの内容と遊び方は
-            <br />
+            <PcBreak />
             <a href="/games">ゲームの遊び方</a>のページで紹介しています。
           </p>
 
