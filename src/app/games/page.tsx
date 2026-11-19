@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Cartridge from "@/components/Cartridge";
+import PcBreak from "@/components/retro/PcBreak";
 import SubPage from "@/components/retro/SubPage";
 import { OPENED } from "@/components/retro/util";
 import { GUIDES } from "@/data/guides";
@@ -13,6 +14,8 @@ export const metadata: Metadata = {
 /**
  * 「どんなもの」の説明は、読点（、）のあとで改行する
  * （2026-11-19 ユーザー指示「どんなものの説明、、で改行させて」）。
+ * 携帯では枠が細く、読点の改行と自動の折り返しが重なって「み、」だけの行ができるので、
+ * パソコンのときだけ効かせる（PcBreak）。
  */
 function CommaBreaks({ text }: { text: string }) {
   const parts = text.split(/(?<=、)/);
@@ -20,7 +23,7 @@ function CommaBreaks({ text }: { text: string }) {
     <>
       {parts.map((t, i) => (
         <span key={i}>
-          {i > 0 ? <br /> : null}
+          {i > 0 ? <PcBreak /> : null}
           {t}
         </span>
       ))}
@@ -43,16 +46,16 @@ export default function GamesPage() {
         <div className="doc">
           <p>
             こす.くまがブラウザで公開している「ふりっぷ」（ゲームや小さなあそび）の、内容と遊び方の説明ページです。
-            <br />
+            <PcBreak />
             どれもスマートフォンやパソコンのブラウザから、インストールなしで遊べます
-            <br />
+            <PcBreak />
             {
               "（Chrome の拡張機能は、Chrome ウェブストアから追加して使います）。"
             }
           </p>
           <p>
             各ページでは「どんなものか」「遊び方・操作」「つくったときのこだわり」「遊べる環境」を紹介しています。
-            <br />
+            <PcBreak />
             {"ゲーム本体は、各ページの「あそぶ」から開けます。公開順の一覧は"}
             <a href="/">ふりっぷ一覧</a>にまとめています。
           </p>
@@ -70,7 +73,7 @@ export default function GamesPage() {
               <tr>
                 <th className="head">カセット</th>
                 <th className="head">ふりっぷの名前</th>
-                <th className="head">どんなもの</th>
+                <th className="head t-desc">どんなもの</th>
               </tr>
               {LIST.map((f) => (
                 <tr key={f.slug}>
@@ -86,6 +89,14 @@ export default function GamesPage() {
                   </td>
                   <td className="t-ttl">
                     <a href={`/games/${f.slug}`}>{f.title}</a>
+                    {/* 携帯では「どんなもの」の列を伏せて、ここに出す（一覧ページと同じ） */}
+                    <span className="t-sub t-sub--guide">
+                      <CommaBreaks text={GUIDES[f.slug].lead} />
+                      <br />
+                      <a className="more" href={`/games/${f.slug}`}>
+                        ▶遊び方を読む
+                      </a>
+                    </span>
                   </td>
                   <td className="t-desc">
                     <CommaBreaks text={GUIDES[f.slug].lead} />

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import PcBreak from "@/components/retro/PcBreak";
 import SubPage, { CONTACT, MAIL } from "@/components/retro/SubPage";
 
 export const metadata: Metadata = {
@@ -22,9 +23,9 @@ export default function PrivacyPage() {
         <div className="doc">
           <p>
             株式会社こす.くま（以下「当社」といいます）は、当社が運営するウェブサイト「kosukuma.com」および
-            <br />
+            <PcBreak />
             そのサブドメインで提供するゲーム・コンテンツ（以下「当サイト」といいます）における、
-            <br />
+            <PcBreak />
             利用者の情報の取り扱いについて、以下のとおり定めます。
           </p>
 
@@ -33,7 +34,7 @@ export default function PrivacyPage() {
           <ul>
             <li>
               お問い合わせフォームやメールでご連絡いただいた際の、お名前・メールアドレス・お問い合わせ内容など、
-              <br />
+              <PcBreak />
               利用者ご本人が入力した情報
             </li>
             <li>
@@ -59,7 +60,7 @@ export default function PrivacyPage() {
           </p>
           <p>
             Cookieは、ブラウザの設定により無効にしたり削除したりできます。ただし、無効にした場合、当サイトの一部の機能が
-            <br />
+            <PcBreak />
             正しく動かないことがあります。
           </p>
 
@@ -67,14 +68,14 @@ export default function PrivacyPage() {
           <p>
             当サイトでは、第三者配信の広告サービス「Google
             AdSense」および「忍者AdMax」を利用しています、
-            <br />
+            <PcBreak />
             または利用する場合があります。
           </p>
           <p>
             Google などの第三者配信事業者は、Cookie
             を使用して、利用者が当サイトや他のウェブサイトに過去にアクセスした際の情報に基づいて広告を配信します。Google
             は広告 Cookie を使用することにより、利用者が当サイトや他のサイトに
-            <br />
+            <PcBreak />
             アクセスした際の情報に基づいて、Google
             やそのパートナーが適切な広告を表示できるようにしています。
           </p>
@@ -96,7 +97,7 @@ export default function PrivacyPage() {
               www.aboutads.info
             </a>
             に
-            <br />
+            <PcBreak />
             アクセスすると、パーソナライズ広告に使われる第三者配信事業者の
             Cookie を無効にできます。
           </p>
@@ -136,16 +137,16 @@ export default function PrivacyPage() {
           <p>
             当サイトでは、利用状況を把握するために、Cloudflare Web Analytics
             などのアクセス解析ツールや、
-            <br />
+            <PcBreak />
             ゲームのプレイ時間などを記録する当社の仕組みを使うことがあります。これらは個人を特定するためのものではなく、
-            <br />
+            <PcBreak />
             統計的な情報として扱います。
           </p>
 
           <h2>6. 第三者への提供</h2>
           <p>
             当社は、法令に基づく場合を除き、利用者ご本人の同意なく個人情報を第三者に提供しません。
-            <br />
+            <PcBreak />
             なお、当サイトの運営に必要な範囲で、サーバー・配信などの業務を外部の事業者に委託することがあります。
           </p>
 
@@ -160,18 +161,18 @@ export default function PrivacyPage() {
               こすくまくんとおしゃべり
             </a>
             ）では、
-            <br />
+            <PcBreak />
             そのサービス固有のプライバシーポリシーや利用規約を別に定めています。その場合は、個別の定めが優先されます。
           </p>
 
           <h2>8. 免責事項</h2>
           <p>
             当サイトの内容は、できるかぎり正確な情報を掲載するよう努めていますが、
-            <br />
+            <PcBreak />
             その正確性や安全性を保証するものではありません。当サイトの利用によって生じた損害について、
-            <br />
+            <PcBreak />
             当社は責任を負いかねます。ゲームの中には、端末を動かしたり投げたりするものがあります。
-            <br />
+            <PcBreak />
             周囲の安全を確認し、ご自身の責任でお楽しみください。
           </p>
           <p>
@@ -181,7 +182,7 @@ export default function PrivacyPage() {
           <h2>9. 著作権</h2>
           <p>
             当サイトに掲載している文章・画像・ゲームなどの著作権は、当社または正当な権利者に帰属します。
-            <br />
+            <PcBreak />
             無断での転載・複製はご遠慮ください。
           </p>
 
@@ -189,7 +190,7 @@ export default function PrivacyPage() {
           <p>
             本ポリシーに関するお問い合わせは、
             <a href={CONTACT}>お問い合わせフォーム</a>、
-            <br />
+            <PcBreak />
             またはメール（
             <a href={`mailto:${MAIL}`}>{MAIL}</a>）までご連絡ください。
           </p>
@@ -215,7 +216,7 @@ export default function PrivacyPage() {
           <h2>11. 改定</h2>
           <p>
             本ポリシーは、必要に応じて内容を見直し、改定することがあります。
-            <br />
+            <PcBreak />
             改定後の内容は、このページに掲載した時点から効力を持つものとします。
           </p>
           <p className="doc-date">制定日：2026年11月18日</p>
