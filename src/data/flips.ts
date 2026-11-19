@@ -398,6 +398,19 @@ export const FLIPS: Flip[] = [
     owner: "すのはら",
     shell: "orange",
   },
+  {
+    slug: "oshikome",
+    code: "HVC-OS",
+    title: "押し込め！満員電車",
+    kana: "おしこめまんいんでんしゃ",
+    romaji: "PUSH 'EM IN",
+    desc: "満員電車に会社員を◆ひたすら連打で押し込みます",
+    url: "https://oshikome.kosukuma.com/",
+    status: "released",
+    date: "2026-11-19",
+    owner: "",
+    shell: "purple",
+  },
 ];
 
 /** ふりっぷの定義。こす.くま本人の言葉なので一字も変えない。 */
