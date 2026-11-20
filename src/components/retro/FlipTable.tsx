@@ -29,6 +29,7 @@ const TITLE_BREAKS: Record<string, string> = {
   "ka-seibai": "オフィスに侵入した◇蚊を成敗する。",
   bouquet: "お花屋さん◇シミュレーター",
   hayaben: "学校でバレないように◇早弁するゲーム",
+  wataame: "わたあめ◇シミュレーター",
 };
 
 /**
