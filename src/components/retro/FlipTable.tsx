@@ -28,6 +28,7 @@ const TITLE_BREAKS: Record<string, string> = {
   "todofuken-spin": "都道府県◆スピンバトル",
   "ka-seibai": "オフィスに侵入した◇蚊を成敗する。",
   bouquet: "お花屋さん◇シミュレーター",
+  hayaben: "学校でバレないように◇早弁するゲーム",
 };
 
 /**
