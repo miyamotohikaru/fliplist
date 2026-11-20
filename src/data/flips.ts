@@ -411,6 +411,19 @@ export const FLIPS: Flip[] = [
     owner: "",
     shell: "purple",
   },
+  {
+    slug: "hayaben",
+    code: "HVC-HB",
+    title: "学校でバレないように早弁するゲーム",
+    kana: "がっこうでばれないようにはやべんするげーむ",
+    romaji: "SNEAKY LUNCH",
+    desc: "先生にバレないように◆教科書の陰で早弁します",
+    url: "https://hayaben.kosukuma.com/",
+    status: "released",
+    date: "2026-11-19",
+    owner: "",
+    shell: "green",
+  },
 ];
 
 /** ふりっぷの定義。こす.くま本人の言葉なので一字も変えない。 */
