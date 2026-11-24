@@ -1,6 +1,6 @@
 import type { LabelArt } from "./types";
 import type { PixelGfx } from "../gfx";
-import { drawKosukuma, KUMA } from "../kosukuma";
+import { KUMA } from "../kosukuma";
 
 // 接待オセロ — こすくまくんにわざと負けるオセロ。負けたら勝ち（接待成功）。
 // 負けるたびに、こすくまくんのつよさが「ふつう」から「うんち」まで1段ずつ下がる。
@@ -8,17 +8,20 @@ import { drawKosukuma, KUMA } from "../kosukuma";
 // 図の骨組み（2026-11-24 描き直し。ユーザー「同じイラストすぎる」「URLの中にあるこすくまを使って」
 // 「フォントも同じすぎるので変えて」）:
 //   盤にぐっと寄って、緑の盤そのものを地にする。石は大きく、枡は7ドット。
-//   左に、こすくまくん。**姿は公式の絵（kosukuma.ts の大きい版）そのまま**
-//   （2026-11-24 ユーザー「少し違うキャラクターになっている」。ゲームの紙人形から焼いた絵は使わない）。
+//   左に、実物のこすくまくん（loseothello の紙人形 kosukuma/rig の絵）。
+//   ポーズも実物どおり: 打っている間は「考える」、接待成功で「両手を上げる」、
+//   止まっているときの絵は「片手を上げる」。絵は面積平均で焼いたもの（手で描き直さない）。
+//   （2026-11-24 一度公式の2Dに替えたが、ユーザー「この雰囲気がいい」「ここで使われているのを使用して」
+//   「くまは小さくていいよ」で、この紙人形の絵に戻し、高さを28→24ドットに小さくした）
 //   題字は実物と同じ書体 M PLUS Rounded 1c の Black（OFL）を焼いたもの。白に黒のふちと濃い緑の影。
 //   「接待」と「オセロ」の2段にして右に寄せる。
 //
 // 動くもの（1周3秒・12コマ）:
 //   いちばん下の列で、白（こすくまくん）が黒（あなた）をはさんで、
 //   石が右から1つずつ、ぱたぱたと白に裏返っていく（裏返る途中は石が横を向いて薄くなる）。
-//   0コマ目（止まっているときの絵）は裏返し終わった列。
-//   1コマ目は 白・黒・黒・空き。2コマ目に右はしへ白が置かれ、3〜5コマ目でぱたぱた。
-//   8〜11コマ目は接待成功。こすくまくんがひょいひょいと跳ねる。きらきらが散る。
+//   0コマ目（止まっているときの絵）は裏返し終わった列と、片手を上げたこすくまくん。
+//   1コマ目は 白・黒・黒・黒・空き。2コマ目に右はしへ白が置かれ、3〜6コマ目でぱたぱた。
+//   8〜11コマ目は接待成功。両手を上げて、ひょいひょいと跳ねる。きらきらが散る。
 
 const GREEN = "#2ea35a";
 const GREEN_L = "#36b062";
@@ -59,6 +62,91 @@ function stone(g: PixelGfx, c: number, r: number, s: 0 | 1 | 2 | 3) {
   }
   // 盤に落ちる影
   g.hline(x + 1, y + 5, 4, SHADOW);
+}
+
+// ── こすくまくん（loseothello の紙人形の絵を、高さ24ドットに焼いたもの）──
+// # 輪郭 / o 体 / e 目と鼻 / m お腹のほくろ
+const KUMA_THINK = [
+  "............###.",
+  ".###..######ooo#",
+  "#ooo##ooooo##oo#",
+  "#oo#ooooooooo#o#",
+  "#o#oooooooooo##.",
+  ".#oooooooooooo#.",
+  ".#oooooooooooo#.",
+  ".#ooooooooooooo#",
+  ".#ooooooooooooo#",
+  ".#oooooooeooooo#",
+  ".#oooooeooooooo#",
+  ".#ooooooeoooooo#",
+  "..#ooooooooooo#.",
+  ".###ooooooooo##.",
+  ".#oo#ooooooo##..",
+  ".#ooooooooooom#.",
+  "..#ooooooooooo#.",
+  "..#ooooooooo#o#.",
+  "..#oooooooooo##.",
+  "..#oooooooomo#..",
+  "...#oooooooo##..",
+  "....##oooo###...",
+  "....#oo##oo#....",
+  "....########....",
+];
+const KUMA_CHEER = [
+  ".###........###.",
+  "#ooo########ooo#",
+  "#oo#oooooooo#oo#",
+  "#o#oooooooooo#o#",
+  "##oooooooooooo#.",
+  ".#oooooooooooo#.",
+  ".#oooooooooooo#.",
+  "#ooooooooooooo#.",
+  "#ooooooooooooo#.",
+  "#oooooeooeoooo#.",
+  "#ooooooeoooooo#.",
+  ".#oooooooooooo#.",
+  ".#ooooooooooo#o#",
+  "..##oooooooo#oo#",
+  "..###oooooooooo#",
+  ".#ooooooooooo##.",
+  ".#o#ooooooooo#..",
+  ".##oooooooooo#..",
+  "..#oooooooooo#..",
+  "..#ooooooomoo#..",
+  "...#oooooooo#...",
+  "....##oooo##....",
+  "...#ooo##ooo#...",
+  "....########....",
+];
+const KUMA_JOY = [
+  ".###...#...###.",
+  "#oo####o####oo#",
+  "#o##ooooooo##o#",
+  "#o#ooooooooo#o#",
+  ".#ooooooooooo#.",
+  ".#ooooooooooo#.",
+  ".#ooooooooooo#.",
+  "#ooooooooooooo#",
+  "#ooooooooooooo#",
+  "#oooooeoeooooo#",
+  ".#oooooeooooo#.",
+  "###ooooooooo###",
+  "#oo#ooooooo#oo#",
+  "#ooooooooooooo#",
+  ".#ooooooooooo#.",
+  "..#ooooooooo#..",
+  "..#ooooooooo#..",
+  "..#ooooooooo#..",
+  "..#ooooooomo#..",
+  "..#ooooooooo#..",
+  "..##ooooooo#...",
+  "...###ooo###...",
+  "....#oo#oo#....",
+  "....#######....",
+];
+
+function kuma(g: PixelGfx, rows: readonly string[], x: number, y: number) {
+  g.blit(x, y, rows, { "#": KUMA.line, o: KUMA.fill, e: KUMA.line, m: KUMA.mole });
 }
 
 // ── 題字（M PLUS Rounded 1c Black を焼いたもの）────────────────
@@ -134,17 +222,20 @@ export const art: LabelArt = {
 
     // ── 石 ───────────────────────────────────────────────
     // 題字のすきまに見える石（動かない）
-    stone(g, 4, 1, 1);
-    stone(g, 4, 2, 2);
-    // いちばん下の列（列4〜7）: 白・黒・黒・空き。右はしに白が置かれ、右から順に白へ裏返る
-    const turn = f === 0 || f >= 6 ? 3 : f <= 2 ? 0 : f - 2; // 裏返し終わった数＋1（右から）
-    const half = f >= 3 && f <= 4 ? f - 2 : 0; // いま裏返る途中の石（右から何番目か）
-    stone(g, 4, 5, 2);
-    for (let k = 1; k <= 2; k++) {
+    stone(g, 3, 1, 1);
+    stone(g, 3, 2, 2);
+    // いちばん下の列（列3〜7）: 白・黒・黒・黒・白。右から順に白へ裏返る
+    // 各コマの列4〜6の石（右から 6,5,4 の順に裏返る）
+    const turn = f === 0 || f >= 7 ? 4 : f <= 2 ? 0 : f - 2; // 裏返し終わった数（右から）
+    const half = f >= 3 && f <= 5 ? f - 2 : 0; // いま裏返る途中の石（右から何番目か）
+    stone(g, 3, 5, 2);
+    for (let k = 1; k <= 3; k++) {
+      const c = 7 - k; // 6, 5, 4
       let s: 1 | 2 | 3 = 1;
       if (k < turn) s = 2;
       if (k === half) s = 3;
-      stone(g, 7 - k, 5, s);
+      if (f === 0 || f >= 6) s = 2;
+      stone(g, c, 5, s);
     }
     // 右はしの白。2コマ目に置かれる
     if (f !== 1) stone(g, 7, 5, 2);
@@ -158,26 +249,26 @@ export const art: LabelArt = {
     }
 
     // ── こすくまくん ─────────────────────────────────────
-    // 姿は kosukuma.ts が正解。ここでは置くだけ（目も口も足さない）。
-    // 接待成功（8〜11コマ目）で、ひょいひょいと跳ねる
-    const hop = f >= 8 && f % 2 === 1 ? -2 : 0;
-    drawKosukuma(g, 1, 3 + hop);
+    // 打っている間は考える。接待成功で両手を上げて跳ねる。止まっている絵は片手を上げる
+    if (f === 0) kuma(g, KUMA_CHEER, 3, 9);
+    else if (f <= 7) kuma(g, KUMA_THINK, 3, 9);
+    else kuma(g, KUMA_JOY, 3, 9 - (f % 2 === 1 ? 2 : 0));
 
     // ── 接待成功（きらきら）─────────────────────────────
     if (f >= 8) {
       const pts =
         f % 2 === 0
           ? [
-              [29, 31],
-              [43, 30],
-              [57, 29],
-              [30, 3],
+              [23, 31],
+              [40, 29],
+              [57, 30],
+              [22, 3],
             ]
           : [
-              [36, 31],
-              [50, 31],
-              [29, 18],
-              [33, 2],
+              [30, 30],
+              [48, 31],
+              [21, 18],
+              [24, 2],
             ];
       pts.forEach(([x, y], i) => {
         const c = SPARK[(i + f) % SPARK.length];
@@ -189,8 +280,7 @@ export const art: LabelArt = {
 
     // ── 題字（右に寄せて2段）─────────────────────────────
     title(g, 66 - T_SETTAI[0].length, 2, T_SETTAI);
-    // こすくまくんの右手（x26まで）にかからないよう、1ドット右へ
-    title(g, 67 - T_OSERO[0].length, 17, T_OSERO);
+    title(g, 66 - T_OSERO[0].length, 17, T_OSERO);
 
     // ── ふち ─────────────────────────────────────────────
     g.frame(0, 0, 68, 40, EDGE);
