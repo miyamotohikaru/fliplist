@@ -437,6 +437,32 @@ export const FLIPS: Flip[] = [
     owner: "",
     shell: "green",
   },
+  {
+    slug: "moyougae",
+    code: "HVC-MY",
+    title: "もようがえシミュレーター",
+    kana: "もようがえしみゅれーたー",
+    romaji: "ROOM MAKEOVER",
+    desc: "好きな家具を置いて◆自分の部屋を作ります",
+    url: "https://moyougae.kosukuma.com/",
+    status: "released",
+    date: "2026-11-22",
+    owner: "",
+    shell: "yellow",
+  },
+  {
+    slug: "settai-othello",
+    code: "HVC-SO",
+    title: "接待オセロ",
+    kana: "せったいおせろ",
+    romaji: "LOSE OTHELLO",
+    desc: "こすくまくんに◆わざと負けてあげます",
+    url: "https://loseothello.kosukuma.com/",
+    status: "released",
+    date: "2026-11-23",
+    owner: "",
+    shell: "navy",
+  },
 ];
 
 /** ふりっぷの定義。こす.くま本人の言葉なので一字も変えない。 */
