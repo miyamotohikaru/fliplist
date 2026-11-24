@@ -30,6 +30,7 @@ const TITLE_BREAKS: Record<string, string> = {
   bouquet: "お花屋さん◇シミュレーター",
   hayaben: "学校でバレないように◇早弁するゲーム",
   wataame: "わたあめ◇シミュレーター",
+  moyougae: "もようがえ◇シミュレーター",
 };
 
 /**
