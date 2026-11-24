@@ -1,6 +1,5 @@
 import type { LabelArt } from "./types";
 import type { PixelGfx } from "../gfx";
-import { drawKosukumaSmall, KUMA } from "../kosukuma";
 
 // もようがえシミュレーター — 棚から家具を選んで部屋に置き、自分の部屋を作る。
 // 「できた」を押すと、こすくまくんが点数とひとことで出来ばえを言う。
@@ -9,8 +8,10 @@ import { drawKosukumaSmall, KUMA } from "../kosukuma";
 // 図の骨組み（2026-11-24 描き直し。ユーザー「同じイラストすぎる」「URLの中にあるこすくまを使って」
 // 「フォントも同じすぎるので変えて」）:
 //   実物（OGの絵）どおり、斜め上から見た箱の部屋。黄色いしまの壁、木の床、淡い玉ぼけの地。
-//   **こすくまくんは公式の絵（kosukuma.ts）そのまま**（2026-11-24 ユーザー「少し違うキャラクターに
-//   なっている」「そのままで画素数を変えるならいいよ」）。小さい版を部屋の右手前に立たせる。
+//   **こすくまくんは公式の3Dデータ**（~/Desktop/こすくま/デザイン/3Dこすくまくん/3Dデータ/kosukuma_base model.blend）を
+//   ゲームと同じく少し上（20度）から、輪郭線（Freestyle）つきで描き出し、面積平均で高さ18ドットに縮めたもの。
+//   手で描き直さない（2026-11-24 ユーザー「3Dのこすくまくん いい感じ」「もう少し小さくて、部屋にいる感じに」）。
+//   部屋の右手前、ラグの上に立つ。
 //   家具は実物の棚にあるもの: 緑のソファ、青いふとんのベッド、額の絵、しまのラグ、
 //   ピンクの座ぶとん、鉢植え。
 //   題字「もようがえ」は Mochiy Pop One（OFL）を焼いたもの。1字ずつ色を変える。
@@ -71,8 +72,30 @@ const H = 12;
 const W = 30;
 const FY = TOP + H; // 奥の角の床の高さ
 
-const KX = 41;
-const KY = 14;
+// ── こすくまくん（公式3Dデータの描き出しを 14x18 に縮めたもの）──
+// # 輪郭 / L 光 / o 地 / d 影 / e 目と鼻
+const KUMA3D = [
+  ".###..##..###.",
+  "#oLL##LL##LLL#",
+  "#oLLLLLLLLLoL#",
+  "#dooLLLLLLLoo#",
+  ".#ooLLLLLLLo#.",
+  ".#dooooLLLLo#.",
+  ".#dooooooooo#.",
+  ".#ddoooooooo#.",
+  ".#ddoooooooo#.",
+  ".#ddoeooeooo#.",
+  ".#ddooeooood#.",
+  "#d#dddddddd#o#",
+  ".#dd######dd#.",
+  "..#dooooooo#..",
+  "..#dooooooo#..",
+  "..#ddoooooo#..",
+  "..##ddoood##..",
+  "...########...",
+];
+const KX = 44;
+const KY = 15;
 
 const T_MOYOU = [
   "...##........................#............##....##.....##.......",
@@ -231,10 +254,10 @@ const picture: Piece = (g, dy) => {
   }
 };
 
-/** 黄色とクリームのしまのラグ（こすくまくんの足もと） */
+/** 黄色とクリームのしまのラグ（こすくまくんの足もと、右手前） */
 const rug: Piece = (g, dy) => {
-  const cx = 26;
-  const cy = 27 + dy;
+  const cx = 51;
+  const cy = 32 + dy;
   for (let y = -3; y <= 3; y++) {
     const half = (3 - Math.abs(y)) * 2 + 2;
     for (let x = -half; x <= half; x++) {
@@ -276,7 +299,7 @@ const bed: Piece = (g, dy) => {
 
 /** ピンクの座ぶとん（ソファの前） */
 const cushion: Piece = (g, dy) => {
-  g.blit(20, 24 + dy, [
+  g.blit(22, 25 + dy, [
     "..ccc..",
     "ccccccc",
     "cccDccc",
@@ -284,9 +307,9 @@ const cushion: Piece = (g, dy) => {
   ], { c: CUSHION, D: CUSHION_D, d: CUSHION_D });
 };
 
-/** 鉢植え（右の角） */
+/** 鉢植え（右の壁ぎわ） */
 const plant: Piece = (g, dy) => {
-  g.blit(2, 22 + dy, [
+  g.blit(58, 22 + dy, [
     ".l..l.",
     "lLl.Ll",
     ".lLLl.",
@@ -304,9 +327,9 @@ const LAND = [
   [8, 28],
   [36, 26],
   [15, 28],
-  [26, 27],
-  [23, 28],
-  [5, 29],
+  [51, 32],
+  [25, 28],
+  [61, 29],
 ];
 
 export const art: LabelArt = {
@@ -343,15 +366,21 @@ export const art: LabelArt = {
     // ── こすくまくん（部屋の右手前）──────────────────────────
     // 11コマ目は梅干しを食べて、ひょいと跳ねる（食べるときだけ速い）
     const hop = f === 11 ? -2 : 0;
-    // 姿は kosukuma.ts が正解。ここでは置くだけ（目も口も足さない）
-    g.ellipse(KX + 10, KY + 25, 8, 1, "#00000030");
-    drawKosukumaSmall(g, KX, KY + hop);
+    // 姿は公式3Dデータを縮めたもの。ここでは置くだけ（目も口も足さない）
+    g.ellipse(KX + 7, KY + 18, 6, 1, "#00000030");
+    g.blit(KX, KY + hop, KUMA3D, {
+      "#": "#3c342c",
+      L: "#fffbe4",
+      o: "#f4ecc4",
+      d: "#decd96",
+      e: "#141008",
+    });
 
     // ── 梅干し。床を押すと降ってくる ─────────────────────
-    if (f === 9) g.disc(37, 16, 1, UME);
+    if (f === 9) g.disc(40, 18, 1, UME);
     if (f === 10) {
-      g.disc(37, 29, 1, UME);
-      g.px(36, 28, UME_L);
+      g.disc(41, 29, 1, UME);
+      g.px(40, 28, UME_L);
     }
 
     // ── 題字 ─────────────────────────────────────────────
@@ -361,6 +390,6 @@ export const art: LabelArt = {
 
     // ── ふち ─────────────────────────────────────────────
     g.frame(0, 0, 68, 40, EDGE);
-    mark(g, KUMA.fill, EDGE);
+    mark(g, "#f4ecc4", EDGE);
   },
 };
