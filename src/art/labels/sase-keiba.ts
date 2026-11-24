@@ -1,101 +1,182 @@
 import type { LabelArt } from "./types";
 import type { PixelGfx } from "../gfx";
 import { misakiRow } from "../misaki";
-import { drawKosukumaSmall, KUMA } from "../kosukuma";
 
 // 差せ！競馬と音ゲー — 曲に合わせて「輪」をタップするとムチが入る。
 // 最後方から追い込んで、1着をねらう。1レース30秒。
 //
-// 図の骨組み: 競馬場を真横から見たレースの場面（ほかのラベルと構図をかぶらせない）。
-//   上は青空とスタンドの観客、白い内ラチ、緑の芝。下の段を馬が駆ける。
-//   左の手前に、こすくまくん。**姿は公式の絵（kosukuma.ts の小さい版）そのまま**で、
-//   実物（OGの絵）の騎手の帽子だけをかぶせる（黄色に赤いすじ、てっぺんに赤い玉）。
-//   体と顔は描き直さない（2026-11-24 ユーザー「少し違うキャラクターになっている」）。
+// 図の骨組み（2026-11-24 描き直し。ユーザー「こすくまいなくていいので馬を画面いっぱいに」
+// 「競馬の感じ」、見本はゲームのレース中の画面）:
+//   ゲームの画面どおり、自分の馬のすぐ後ろから前を見る。最後方なので、前は馬だらけ。
+//   手前に自分の馬の後ろ姿（赤と白のしまの勝負服）を大きく。前を走る馬たちは、
+//   遠くほど小さく、刈り目のしまの芝の上に散らばる。右は白い内ラチが奥へ曲がっていき、
+//   その外にダートのコース。奥は低い木の並木と、白い柱のモノレール（紫から水色の帯）。
 //   題字「差せ！」は Dela Gothic One（OFL）を焼いたもの。白に黒の太いふち、「！」は実物のロゴどおり黄色。
-//   「競馬と音ゲー」は題字の上に小さく。
+//   「競馬と音ゲー」は空に小さく。
 //
 // 動くもの（1周3秒・12コマ）:
-//   芝のしまと内ラチの柱が左へ流れて、走っている速さを出す。馬の脚は2コマで駆ける。
-//   黄色い帽子の騎手の栗毛が、1コマ目の最後方から追い込んで、先頭の葦毛に並び、
-//   11コマ目で前に出る（差した）。0コマ目（止まっているときの絵）は差し切ったところ。
-//   栗毛のまわりの輪は、3コマかけて縮み、ぴったり重なったコマ（3・6・9）で
+//   芝のしまが手前へ流れて、走っている速さを出す。馬はみんな2コマで駆ける（脚と上下のゆれ）。
+//   前の馬たちは少しずつ手前へ下がってくる（追い込んで、差を詰めていく）。
+//   自分の騎手のまわりの輪は、3コマかけて縮み、ぴったり重なったコマ（3・6・9）で
 //   黄色い星がはじけてムチが入る（ゲームの「輪でタップ＝ムチ」）。
 
-const SKY = "#a6d8f6";
-const SKY_L = "#c9e9fb";
-const ROOF = "#34407a";
-const STAND = "#4e5c9e";
-const CROWD = ["#ffd23f", "#ff7a7a", "#ffffff", "#7fd6ff", "#ff9ed2", "#b0f07a"];
+const SKY = "#bfe3f7";
+const SKY_L = "#dff1fb";
+const HILL = "#b9dcb4";
+const RAIL_TOP = "#f4f6f8";
+const RAIL_BAND = ["#8a5cd8", "#c065d8", "#5f8ae0", "#58c8f0"];
+const TOWER = "#f2f5f8";
+const TOWER_B = "#7fb6e8";
+const TREE = "#b6e39a";
+const TREE_D = "#94cc7a";
+const TRUNK = "#7a5634";
+const TURF = "#6cc455";
+const TURF_L = "#82d468";
 const RAIL = "#ffffff";
 const RAIL_D = "#c9d2d8";
-const TURF = "#4fb446";
-const TURF_L = "#62c454";
-const TURF_D = "#3f9a3a";
+const DIRT = "#d6aa72";
+const DIRT_D = "#c4945c";
 const EDGE = "#141414";
 const WHITE = "#ffffff";
 const BANG = "#ffd83a";
 const STAR = "#fff27a";
 
-// 馬（右向き、16x10）。b 毛 / d たてがみ・尾・ひづめ / l 明るい毛
-const HORSE_A = [
-  "............bb..",
-  "...........bbbb.",
-  "..........dbbbbb",
-  "d..lllbbbbbb..b.",
-  "ddbbbbbbbbbbb...",
-  "d.bbbbbbbbbb....",
-  "...bbbbbbbbb....",
-  "..bb......bb....",
-  ".bb........bb...",
-  "dd..........dd..",
+const COAT = "#a8582a"; // 栗毛
+const COAT_L = "#c4703a";
+const COAT_D = "#7a3c18";
+const TAIL = "#5a2a10";
+const SOCK = "#ffffff";
+
+// ── 馬の後ろ姿（騎手つき）。大きさは4段。2つめは脚を入れかえたコマ ─────
+// c 帽子 / s 勝負服 / t 勝負服の2色め / b 毛 / l 明るい毛 / k 濃い毛 / d 尾 / w 白い靴下
+const BACK_S = [
+  [".c.", "sss", "bdb", "b.b", "w.w"],
+  [".c.", "sss", "bdb", "bb.", "w.w"],
 ];
-const HORSE_B = [
-  "............bb..",
-  "...........bbbb.",
-  "..........dbbbbb",
-  "...lllbbbbbb..b.",
-  "ddbbbbbbbbbbb...",
-  "ddbbbbbbbbbb....",
-  "d..bbbbbbbbb....",
-  "....bb..bbb.....",
-  "....b.bb..b.....",
-  "...dd.dd..dd....",
+const BACK_M = [
+  ["..c..", ".sts.", "lbbbk", "lbdbk", ".bdb.", ".b.b.", ".w.w."],
+  ["..c..", ".sts.", "lbbbk", "lbdbk", ".bdb.", ".bb..", ".w..w"],
+];
+const BACK_L = [
+  [
+    "...c...",
+    "..ccc..",
+    "..sts..",
+    ".sstss.",
+    ".lbbbk.",
+    "llbbbkk",
+    "lbbdbbk",
+    ".bbdbb.",
+    "..bdb..",
+    "..b.b..",
+    "..b.b..",
+    "..w.w..",
+  ],
+  [
+    "...c...",
+    "..ccc..",
+    "..sts..",
+    ".sstss.",
+    ".lbbbk.",
+    "llbbbkk",
+    "lbbdbbk",
+    ".bbdbb.",
+    "..bdb..",
+    "..bb.b.",
+    "..b..b.",
+    "..w...w",
+  ],
+];
+// 自分の馬（手前、いちばん大きい）。赤と白のしまの帽子と勝負服
+const BACK_XL = [
+  [
+    "......ccc......",
+    ".....ctctc.....",
+    ".....ctctc.....",
+    "......ccc......",
+    "....sstttss....",
+    "...ssstttsss...",
+    "...sstttttss...",
+    "....sstttss....",
+    "...lllbbbbkk...",
+    "..llbbbbbbbkk..",
+    ".llbbbbbbbbbkk.",
+    ".lbbbbbdbbbbbk.",
+    ".lbbbbbdbbbbbk.",
+    "..bbbbbdbbbbb..",
+    "..lbbbbdbbbbk..",
+    "...bbbbdbbbb...",
+    "....bbbdbbb....",
+    "....bb.d.bb....",
+    "....bb.d.bb....",
+    "....bb...bb....",
+    "....ww...bb....",
+    "....ww...ww....",
+  ],
+  [
+    "......ccc......",
+    ".....ctctc.....",
+    ".....ctctc.....",
+    "......ccc......",
+    "....sstttss....",
+    "...ssstttsss...",
+    "...sstttttss...",
+    "....sstttss....",
+    "...lllbbbbkk...",
+    "..llbbbbbbbkk..",
+    ".llbbbbbbbbbkk.",
+    ".lbbbbbdbbbbbk.",
+    ".lbbbbbdbbbbbk.",
+    "..bbbbbdbbbbb..",
+    "..lbbbbdbbbbk..",
+    "...bbbbdbbbb...",
+    "....bbbdbbb....",
+    "....bb.d.bb....",
+    "....bb.d.bb....",
+    "....bb...bb....",
+    "....bb...ww....",
+    "....ww...ww....",
+  ],
 ];
 
-/** 馬と騎手。x, y は馬の左上。silk は勝負服、cap は帽子の色 */
-function horse(
-  g: PixelGfx,
-  x: number,
-  y: number,
-  stride: boolean,
-  coat: [string, string, string],
-) {
-  const [b, d, l] = coat;
-  g.blit(x, y, stride ? HORSE_A : HORSE_B, { b, d, l });
-}
+type Silk = { cap: string; s: string; t: string };
+const SILKS: Silk[] = [
+  { cap: "#2a3a8a", s: "#2a3a8a", t: "#2a3a8a" },
+  { cap: "#e85aa0", s: "#e85aa0", t: "#ffffff" },
+  { cap: "#3a8ae0", s: "#3a8ae0", t: "#ffffff" },
+  { cap: "#2e8a4a", s: "#2e8a4a", t: "#1c1c1c" },
+  { cap: "#f0d23a", s: "#1c1c1c", t: "#f0d23a" },
+  { cap: "#8a4ed0", s: "#8a4ed0", t: "#c8a8f0" },
+  { cap: "#f08a2a", s: "#f08a2a", t: "#2a3a8a" },
+  { cap: "#a82a3a", s: "#a82a3a", t: "#ffffff" },
+];
+const MY_SILK: Silk = { cap: "#e8403a", s: "#ffffff", t: "#e8403a" };
 
-function jockey(g: PixelGfx, x: number, y: number, silk: string, cap: string) {
-  // 前かがみの騎手（6x5）。馬の背（x+4..9, y+3）にのる
-  g.blit(x + 5, y - 2, ["...cc.", "..ccc.", "sssss.", ".ssss.", "..s..."], {
-    c: cap,
-    s: silk,
+function back(g: PixelGfx, rows: readonly string[], x: number, y: number, silk: Silk) {
+  g.blit(x, y, rows, {
+    c: silk.cap,
+    s: silk.s,
+    t: silk.t,
+    b: COAT,
+    l: COAT_L,
+    k: COAT_D,
+    d: TAIL,
+    w: SOCK,
   });
 }
 
-/** 公式のこすくまくん（小さい版）にかぶせる騎手の帽子。耳は隠さない */
-const CAP = [
-  "......r......",
-  ".....#r#.....",
-  "...##yRy##...",
-  "..#yyyRyyy#..",
-  ".#yyyyRyyyy#.",
-  ".#yyyyRyyyy#.",
-  "..#########..",
+// 前を走る馬。[中心x, 足もとy, 大きさ(0=S 1=M 2=L), 勝負服, 脚の位相]
+const FIELD: Array<[number, number, 0 | 1 | 2, number, number]> = [
+  [30, 15, 0, 5, 0],
+  [37, 15, 0, 4, 1],
+  [47, 16, 0, 7, 1],
+  [21, 18, 1, 6, 0],
+  [33, 19, 1, 3, 1],
+  [43, 19, 1, 1, 0],
+  [8, 23, 2, 0, 1],
+  [18, 25, 2, 2, 0],
+  [57, 22, 1, 7, 0],
 ];
-function kumaJockey(g: PixelGfx, x: number, y: number) {
-  drawKosukumaSmall(g, x, y);
-  g.blit(x + 4, y - 4, CAP, { "#": EDGE, y: "#ffd23f", R: "#e8403a", r: "#e8403a" });
-}
 
 // ── 発行元の印 ──────────────────────────────────────────
 const MARK = ["#...#", ".###.", "#####", "#o#o#", ".#o#."];
@@ -164,85 +245,116 @@ function small(g: PixelGfx, x: number, y: number, text: string) {
   misakiRow(g, x, y, text, WHITE);
 }
 
-// 黄色い帽子の栗毛の左のはし（コマごと）。0コマ目は差し切ったところ
-const CX = [47, 21, 23, 25, 28, 31, 34, 37, 40, 42, 44, 47];
-// 先頭の葦毛
-const LEAD_X = 44;
-// 馬の段（左上の y）
-const LANE = 27;
+/** 内ラチの x（奥 y=12 で x=44、手前 y=31 で右はし x=67 へ曲がっていく） */
+function railX(y: number) {
+  const k = (y - 12) / 19;
+  return 44 + 23 * Math.pow(k, 0.7);
+}
 
 export const art: LabelArt = {
   slug: "sase-keiba",
-  swatch: [TURF, SKY, "#ffd23f", "#c46a2c", BANG],
+  swatch: [TURF, SKY, COAT, MY_SILK.cap, BANG],
   draw: (g, t) => {
     const f = Math.round(t * 12) % 12;
-    const run = f; // 流れる量
 
-    // ── 空とスタンド ─────────────────────────────────────
-    g.rect(0, 0, 68, 6, SKY);
-    g.rect(0, 0, 68, 2, SKY_L);
-    g.rect(0, 4, 68, 6, STAND);
-    g.hline(0, 4, 68, ROOF);
-    for (let x = 1; x < 68; x += 2)
-      for (let y = 6; y < 10; y += 2) {
-        const k = (x * 7 + y * 13) % 11;
-        if (k < CROWD.length) g.px(x + ((y / 2) % 2), y, CROWD[k]);
+    // ── 空・モノレール・並木 ─────────────────────────────
+    g.rect(0, 0, 68, 12, SKY);
+    g.rect(0, 0, 68, 3, SKY_L);
+    // 遠い丘
+    for (let x = 0; x < 68; x++) {
+      const h = 2 + Math.round(1.5 * Math.sin(x / 7) + Math.sin(x / 3.1));
+      g.vline(x, 11 - h, h + 1, HILL);
+    }
+    // 白い塔（青い窓の帯）
+    for (const tx of [12, 50, 63]) {
+      g.rect(tx, 2, 4, 9, TOWER);
+      g.hline(tx, 5, 4, TOWER_B);
+      g.hline(tx, 8, 4, TOWER_B);
+    }
+    // モノレール: 白い柱と、紫から水色の帯
+    for (const px of [4, 26, 40, 58]) g.vline(px, 4, 7, TOWER);
+    g.hline(0, 3, 68, RAIL_TOP);
+    for (let x = 0; x < 68; x++) g.px(x, 4, RAIL_BAND[Math.floor(x / 17) % 4]);
+    // 並木（低い木）
+    for (const [x, r] of [
+      [3, 3],
+      [10, 2],
+      [17, 3],
+      [24, 2],
+      [31, 3],
+      [38, 2],
+      [53, 2],
+      [60, 3],
+    ]) {
+      g.vline(x, 10, 3, TRUNK);
+      g.disc(x, 9 - r + 1, r, TREE);
+      g.px(x + 1, 10 - r + 1, TREE_D);
+    }
+
+    // ── 芝（刈り目のしまが手前へ流れる）──────────────────
+    g.rect(0, 12, 68, 28, TURF);
+    for (let k = -1; k < 12; k++) {
+      // 奥ほど細い帯。f で手前へずれていく
+      const p0 = (k + f / 6) / 10;
+      const p1 = (k + 0.5 + f / 6) / 10;
+      const y0 = 12 + Math.round(28 * Math.pow(Math.max(0, p0), 1.6));
+      const y1 = 12 + Math.round(28 * Math.pow(Math.max(0, p1), 1.6));
+      if (y1 > y0) g.rect(0, y0, 68, Math.min(40, y1) - y0, TURF_L);
+    }
+
+    // ── 内ラチと外のダート ───────────────────────────────
+    for (let y = 12; y < 40; y++) {
+      const x = Math.round(railX(y));
+      if (x < 68) {
+        g.hline(x + 1, y, 68 - x, y < 20 ? DIRT : DIRT_D);
+        g.px(x, y, RAIL);
+        g.px(x, y + 1, RAIL_D);
       }
-
-    // ── 芝（刈り目のしまが左へ流れる）────────────────────
-    g.rect(0, 10, 68, 30, TURF);
-    for (let x = -8; x < 68; x += 8) {
-      const xx = x - ((run * 3) % 8);
-      g.rect(xx, 11, 4, 29, TURF_L);
     }
-    g.hline(0, 11, 68, TURF_D);
-    // 内ラチ（柱が左へ流れる）
-    g.hline(0, 10, 68, RAIL);
-    for (let x = 0; x < 72; x += 6) {
-      const xx = x - ((run * 4) % 6);
-      g.vline(xx, 10, 3, RAIL);
-      g.px(xx, 13, RAIL_D);
+    for (let y = 13; y < 32; y += 4) {
+      const yy = y + (f % 2);
+      const x = Math.round(railX(yy));
+      g.vline(x, yy, 2, RAIL);
     }
 
-    // ── 先頭の葦毛 ───────────────────────────────────────
-    const bob = f % 2;
-    horse(g, LEAD_X, LANE + bob, f % 2 === 0, ["#9a9aa6", "#5a5a66", "#c4c4cc"]);
-    jockey(g, LEAD_X, LANE + bob, "#3d7fd8", "#ffffff");
+    // ── 前を走る馬たち（奥から順に）──────────────────────
+    // 追い込んで差を詰めるので、少しずつ手前へ下がってくる
+    const near = Math.floor(f / 4);
+    for (const [cx, fy, size, silk, ph] of [...FIELD].sort((a, b) => a[1] - b[1])) {
+      const stride = (f + ph) % 2;
+      const yy = fy + near + (stride ? 0 : -1);
+      const rows = [BACK_S, BACK_M, BACK_L][size][stride];
+      back(g, rows, cx - Math.floor(rows[0].length / 2), yy - rows.length + 1, SILKS[silk]);
+    }
 
-    // ── 追い込む栗毛（黄色い帽子）─────────────────────────
-    const cx0 = CX[f];
-    const cy0 = LANE + 2 + ((f + 1) % 2); // 手前の列
+    // ── 自分の馬（手前、まん中より右）────────────────────
+    const stride = f % 2;
+    const mx = 46;
+    const my = 18 + (stride ? 0 : 1);
     // 輪（3コマで縮み、3・6・9コマ目でぴったり＝ムチ）
-    const phase = f === 0 ? 3 : ((f - 1) % 3) + 1; // 1,2,3
-    const rx = cx0 + 9;
-    const ry = cy0 + 3;
-    if (phase < 3) g.ring(rx, ry, phase === 1 ? 8 : 6, WHITE);
-    const hit = phase === 3;
-    if (hit) for (const dy of [1, 4, 7]) g.hline(cx0 - 7, cy0 + dy, 5, WHITE, "half");
-    horse(g, cx0, cy0, f % 2 === 1, ["#c46a2c", "#6e3410", "#e08a48"]);
-    jockey(g, cx0, cy0, "#e8403a", "#ffd23f");
-    if (hit) {
+    const phase = f === 0 ? 3 : ((f - 1) % 3) + 1;
+    const rx = mx + 7;
+    const ry = my + 5;
+    if (phase < 3) g.ring(rx, ry, phase === 1 ? 10 : 7, WHITE);
+    back(g, BACK_XL[stride], mx, my, MY_SILK);
+    if (phase === 3) {
+      // ムチ（騎手の右手から、斜めに）
+      g.line(mx + 12, my + 5, mx + 16, my + 12, "#3a2a1a");
       // ぴったり！ 黄色い星
-      const sx = rx + 6;
-      const sy = cy0 - 3;
+      const sx = mx + 17;
+      const sy = my + 2;
       g.hline(sx - 2, sy, 5, STAR);
       g.vline(sx, sy - 2, 5, STAR);
       g.px(sx, sy, WHITE);
     }
 
-    // ── こすくまくん（左の手前。騎手の帽子をかぶって応援）──
-    // 姿は kosukuma.ts が正解。ここでは置くだけ。ムチが入ったコマで、ひょいと跳ねる
-    kumaJockey(g, 1, 13 - (hit && f !== 0 ? 1 : 0));
-
     // ── 題字 ─────────────────────────────────────────────
-    // 「競馬と音ゲー」はスタンドの屋根の紺の帯に（観客の色に字が溶けないように）
-    g.rect(18, 0, 50, 10, ROOF);
-    small(g, 20, 1, "競馬と音ゲー");
-    bigTitle(g, 23, 11, T_SASE, WHITE);
-    bigTitle(g, 23 + T_SASE[0].length + 2, 11, T_BANG, BANG);
+    small(g, 3, 1, "競馬と音ゲー");
+    bigTitle(g, 3, 23, T_SASE, WHITE);
+    bigTitle(g, 3 + T_SASE[0].length + 2, 23, T_BANG, BANG);
 
     // ── ふち ─────────────────────────────────────────────
     g.frame(0, 0, 68, 40, EDGE);
-    mark(g, KUMA.fill, EDGE);
+    mark(g, WHITE, EDGE);
   },
 };
