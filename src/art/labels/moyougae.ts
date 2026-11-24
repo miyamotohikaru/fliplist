@@ -17,15 +17,9 @@ import type { PixelGfx } from "../gfx";
 //   題字「もようがえ」は Mochiy Pop One（OFL）を焼いたもの。1字ずつ色を変える。
 //   「シミュレーター」は、こすくまくんの足もとに入るよう、5ドット幅に詰めて手で起こした点の字。
 //
-// 動くもの（1周3秒・12コマ）:
-//   0コマ目（止まっているときの絵）は家具がそろった部屋。
-//   1コマ目で家具が消えて、空っぽの部屋にこすくまくんだけ。
-//   2〜7コマ目で家具が1つずつ上から落ちてきて置かれる（ゲームの置き方）。
-//   9〜10コマ目で梅干しが1つ降ってきて床に落ちる（ゲームの、床を押すと降る梅干し）。
-//   11コマ目、梅干しは消えて、こすくまくんがひょいと跳ねる（食べるときだけ速い）。
-//   こすくまくんはその間ずっと、ラグのまわりを左右にとことこ歩いている（2026-11-24 ユーザー
-//   「こすくまが歩いているのがいい」「moyougae.kosukuma.com のこの感じで歩いて」）。
-//   ゲームと同じく、歩く向きに体を向け、体を左右に揺らしながら足を交互に出す。
+// 動くもの（1周3秒）: 家具がそろった部屋を、こすくまくんがゆっくり歩く。
+//   0.5秒に1歩、3歩で右へ行って3歩で左へ戻る。歩く向きに体を向け、歩くたびに足を出す。
+//   （2026-11-25 ユーザー「最近のカセット動きが激しい」で、家具が落ちてくる演出と梅干しはやめた）
 
 const BG = "#f7f0d4";
 const BG_LOW = "#e4efd2";
@@ -62,8 +56,6 @@ const POT = "#d0703a";
 const FRAME = "#c98a4a";
 const PIC_SKY = "#a8d8f0";
 const PIC_HILL = "#7cc46a";
-const UME = "#d4304a";
-const UME_L = "#f06a80";
 
 // 題字の字ごとの色（も・よ・う・が・え）
 const TITLE_COLORS = ["#ff8fb0", "#ffb347", "#7fd6a8", "#7fb8ff", "#c79bff"];
@@ -392,24 +384,14 @@ const plant: Piece = (g, dy) => {
 
 // 落ちてくる順（壁から床へ、奥から手前へ。描く順もこのまま）
 const PIECES: Piece[] = [picture, bed, sofa, rug, cushion, plant];
-// 落ちてくるときの、床の着地点（影を置く）
-const LAND = [
-  [8, 28],
-  [36, 26],
-  [15, 28],
-  [30, 28],
-  [7, 29],
-  [61, 29],
-];
 
 export const art: LabelArt = {
   slug: "moyougae",
   swatch: [WALL_STRIPE, FLOOR, SOFA, BED, TITLE_COLORS[0]],
   draw: (g, t) => {
-    const f = Math.round(t * 12) % 12;
-    // 置いてある家具の数と、いま落ちてくる家具（2〜7コマ目）
-    const placed = f === 1 ? 0 : f >= 2 && f <= 7 ? f - 2 : PIECES.length;
-    const falling = f >= 2 && f <= 7 ? f - 2 : -1;
+    // ゆったり動かす（2026-11-25 ユーザー「最近のカセット動きが激しいので、もう少しゆったり」）。
+    // 家具は置き終わった部屋のまま。こすくまくんだけが、0.5秒に1歩ずつ歩く（1周6歩）
+    const s = Math.floor(t * 6) % 6;
 
     // ── 地（生成りから若草色へ。淡い玉ぼけ）─────────────
     g.rect(0, 0, 68, 40, BG);
@@ -425,37 +407,22 @@ export const art: LabelArt = {
     room(g);
 
     // ── 家具（こすくまくんより奥の物）────────────────────
-    for (let i = 0; i < PIECES.length; i++) {
-      if (i < placed) PIECES[i](g, 0);
-      else if (i === falling) {
-        g.hline(LAND[i][0] - 2, LAND[i][1], 5, FLOOR_D, "half");
-        PIECES[i](g, -4);
-      }
-    }
+    for (const piece of PIECES) piece(g, 0);
 
     // ── こすくまくん（部屋の真ん中を歩く）──────────────────────────
-    // 11コマ目は梅干しを食べて、ひょいと跳ねる（食べるときだけ速い）
-    const hop = f === 11 ? -2 : 0;
-    // とことこ歩く: 1周で右へ行って左へ戻る。歩く向きに体を向け、1歩4コマで足を出す
-    const kx = KX + Math.round(8 * Math.sin((f / 12) * Math.PI * 2));
-    const right = Math.cos((f / 12) * Math.PI * 2) >= 0;
-    const walk = KUMA_WALK[f % 4];
+    // とことこ歩く: 3歩で右へ行き、3歩で左へ戻る。歩く向きに体を向け、歩くたびに足を出す
+    const kx = KX + [-6, -2, 2, 6, 2, -2][s];
+    const right = s < 3;
+    const walk = KUMA_WALK[s % 4];
     const rows = right ? walk : walk.map((r) => r.split("").reverse().join(""));
     g.ellipse(kx + 8, 30, 6, 1, "#00000030");
-    g.blit(kx, KY + hop, rows, {
+    g.blit(kx, KY, rows, {
       "#": "#3c342c",
       L: "#fffbe4",
       o: "#f4ecc4",
       d: "#decd96",
       e: "#141008",
     });
-
-    // ── 梅干し。床を押すと降ってくる ─────────────────────
-    if (f === 9) g.disc(44, 17, 1, UME);
-    if (f === 10) {
-      g.disc(44, 28, 1, UME);
-      g.px(43, 27, UME_L);
-    }
 
     // ── 題字 ─────────────────────────────────────────────
     // も・よ・う・が・え の切れ目（列）

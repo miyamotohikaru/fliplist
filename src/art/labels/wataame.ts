@@ -169,7 +169,10 @@ export const art: LabelArt = {
   slug: "wataame",
   swatch: [BG, P.pink[0], P.green[0], P.yellow[0], P.blue[0]],
   draw: (g, t) => {
-    const f = Math.round(t * 12) % 12;
+    // ゆったり動かす（2026-11-25 ユーザー「最近のカセット動きが激しいので、もう少しゆったり」）。
+    // 12コマのうち SEQ のコマだけを、1周3秒で順にゆっくり見せる（初めの方のカセットと同じくらいの間）。
+    const SEQ = [0, 11, 0, 11];
+    const f = SEQ[Math.floor(t * SEQ.length) % SEQ.length];
     // 0・11コマ目＝仕上がり。1コマ目＝串だけ。2コマ目＝綿が出はじめ。3〜10＝輪が増える
     const full = f === 0 || f === 11;
     const rings = full ? RINGS.length : f <= 1 ? 0 : f === 2 ? 1 : f - 2;

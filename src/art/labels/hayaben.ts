@@ -289,7 +289,10 @@ export const art: LabelArt = {
   slug: "hayaben",
   swatch: [BOARD, TITLE_C, BOX, EGG, SHIRT],
   draw: (g, t) => {
-    const f = Math.round(t * 12) % 12;
+    // ゆったり動かす（2026-11-25 ユーザー「最近のカセット動きが激しいので、もう少しゆったり」）。
+    // 12コマのうち SEQ のコマだけを、1周3秒で順にゆっくり見せる（初めの方のカセットと同じくらいの間）。
+    const SEQ = [0, 1, 4, 6, 8, 10];
+    const f = SEQ[Math.floor(t * SEQ.length) % SEQ.length];
     const pose: Pose =
       f <= 2 || f >= 10 ? "watch" : f === 3 || f === 9 ? "turn" : "back";
     // 見張っている間、目が左右に動く（0コマ目はこちら＝左を見る）
