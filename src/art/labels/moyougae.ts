@@ -75,104 +75,97 @@ const H = 12;
 const W = 30;
 const FY = TOP + H; // 奥の角の床の高さ
 
-// ── こすくまくん（公式3Dデータに、ゲームと同じ歩きのポーズをつけて描き出し、18x20 に縮めたもの）──
+// ── こすくまくん（公式3Dデータに、ゲームと同じ歩きのポーズをつけて描き出し、16x18 に縮めたもの）──
 // ゲームの歩き（moyougae の yit）と同じ量: 体を左右に 9°·sin、前のめり 4°、向き -5°·cos、
 // 脚 ±22°·cos、腕 ∓4°·cos、上下 .04·(.5-.5cos2s)。歩く向きへ 25° 体を向ける。1歩を4コマ（s=0,90,180,270°）。
 // 左へ歩くときは左右を反転して使う。手で描き直さない。
 // # 輪郭 / L 光 / o 地 / d 影 / e 目と鼻
 const KUMA_WALK = [
   [
-    "..................",
-    "....##..##..###...",
-    "...#LL##LL##LLL#..",
-    "..#oLLLLLLLLLLL#..",
-    "..#dooLLLLLLLLd#..",
-    "...#dooLLLLLLL#...",
-    "...#dooooLLLoo#...",
-    "...#ddooooooooo#..",
-    "...#ddooooooooo#..",
-    "...#ddooooooeoo#..",
-    "...#ddooooeooo#...",
-    "....#ddooooeod#...",
-    "...##dddddddd###..",
-    "...#ddddd####d#...",
-    "....#doooooooo#...",
-    "....#doooooooo#...",
-    "....#dooooooo#....",
-    ".....#dddooo##....",
-    ".....#######......",
-    "..................",
+    "................",
+    "...###.#######..",
+    "..#oLL#LLLLLL#..",
+    "..#ooLLLLLLLo#..",
+    "..#dooLLLLLLo#..",
+    "...#dooLLLLLo#..",
+    "...#doooooooo#..",
+    "...#doooooooo#..",
+    "...#ddoooooeo#..",
+    "...#ddoooeooo#..",
+    "....#ddoooedd#..",
+    "...#ddddddd###..",
+    "...#doodoooo#...",
+    "....#oooLLLo#...",
+    "....#doooooo#...",
+    "....#dddood##...",
+    "....#######.....",
+    "................",
   ],
   [
-    ".......##.........",
-    "......#LL####..##.",
-    ".....#oLLLLLL##LL#",
-    ".....#oooLLLLLLLo#",
-    ".....#ddoLLLLLLL##",
-    ".....#ddoLLLLLLLo#",
-    ".....#doooLLLLLo#.",
-    ".....#oooooooooo#.",
-    ".....#dooooooooo#.",
-    ".....#ddoooooooo#.",
-    ".....#ddooooeoeo#.",
-    "....###dddoooeod#.",
-    "....#oodddddddd#..",
-    ".....#ooodd#####..",
-    ".....#oooLLooo#...",
-    ".....#ooooLooo#...",
-    ".....#ddoooooo#...",
-    ".....#d##dddd#....",
-    ".....##..####.....",
-    "..................",
+    "......##........",
+    ".....#LL#######.",
+    ".....#LLLLLLLLL#",
+    ".....#ooLLLLLLo#",
+    ".....#doLLLLLLo#",
+    ".....#ooLLLLLLo#",
+    "....#oooooooooo#",
+    "....#doooooooo#.",
+    "....#ddoooeooo#.",
+    ".....#ddooooeo#.",
+    "....##ddddoedd#.",
+    "....#doddddd##..",
+    "....#ooooooo#...",
+    "....#oooLLLo#...",
+    "....#ddooooo#...",
+    "....#d##dod##...",
+    ".....#..###.....",
+    "................",
   ],
   [
-    "..................",
-    "....###.##.####...",
-    "...#LLL#LL#LLL#...",
-    "...#oLLLLLLLLoo#..",
-    "...#ooLLLLLLLL#...",
-    "...#ddoLLLLLLL#...",
-    "...#ddooLLLLooo#..",
-    "...#ddooooooooo#..",
-    "...#ddooooooooo#..",
-    "...#ddoooooooeo#..",
-    "...#dddooooeoo#...",
-    "....#dddooooed#...",
-    "....##ddddddd##...",
-    "...#oodddd####....",
-    "....#dooooooo#....",
-    "....#dooooLoo#....",
-    ".....#ooooooo#....",
-    ".....#dddooo##....",
-    ".....#######......",
-    ".....#............",
+    "................",
+    "....##.######...",
+    "...#LL#LLLLLL#..",
+    "..#ooLLLLLLL##..",
+    "...#doLLLLLLL#..",
+    "...#dooLLLLLo#..",
+    "...#doooooooo#..",
+    "...#doooooooo#..",
+    "...#ddoooeoeo#..",
+    "...#ddooooeoo#..",
+    "....#dddooodd#..",
+    "...##dddddd##...",
+    "...#doodoooo#...",
+    "....#oooLLoo#...",
+    "....#ooooooo#...",
+    "....#ddoooo#....",
+    "....#######.....",
+    "................",
   ],
   [
-    ".........###......",
-    "......###LLL#.....",
-    ".#####LLLLLL#.....",
-    "#oLLLLLLLLLo#.....",
-    "#ooLLLLLLLLL#.....",
-    "#ddooLLLLLLL#.....",
-    ".#doooooooooo#....",
-    "..#dooooooooo#....",
-    "..#ddoooooooo#....",
-    "..#ddoooeooeo#....",
-    "..#ddoooooeoo#....",
-    "..#dddoooodd##....",
-    "...#dddddd##o#....",
-    "..#odddddooLo#....",
-    "..##dooooLLLo#....",
-    "....#oooooooo#....",
-    "....#dooooood#....",
-    "....#ddddd###.....",
-    "....#d####........",
-    ".....#............",
+    "........###.....",
+    ".....###LLL#....",
+    ".####LLLLLo#....",
+    "#oLLLLLLLLo#....",
+    "#oooLLLLLLL#....",
+    ".#doooLLooo#....",
+    ".#doooooooo#....",
+    ".#ddooooooo#....",
+    ".#ddoooeoeo#....",
+    "..#ddoooeood#...",
+    "..#dddddddd##...",
+    "..##dddd##o#....",
+    "..#ddoooLLL#....",
+    "...#doooLLo#....",
+    "...#doooooo#....",
+    "....#ddod##.....",
+    "....#####.......",
+    "................",
   ],
 ];
-// 立つ位置。ラグのまわりを左右に行ったり来たりする（x は KX±4）
-const KX = 46;
-const KY = 13;
+// 立つ位置。部屋の真ん中を左右に行ったり来たりする（左はしの x は KX±8）
+// 頭が上の題字に、足が下の題字にかからない高さ（足もと y=29）
+const KX = 22;
+const KY = 12;
 
 const T_MOYOU = [
   "...##........................#............##....##.....##.......",
@@ -331,10 +324,10 @@ const picture: Piece = (g, dy) => {
   }
 };
 
-/** 黄色とクリームのしまのラグ（こすくまくんの足もと、右手前） */
+/** 黄色とクリームのしまのラグ（部屋の真ん中、こすくまくんの足もと） */
 const rug: Piece = (g, dy) => {
-  const cx = 54;
-  const cy = 32 + dy;
+  const cx = 30;
+  const cy = 28 + dy;
   for (let y = -3; y <= 3; y++) {
     const half = (3 - Math.abs(y)) * 2 + 2;
     for (let x = -half; x <= half; x++) {
@@ -376,7 +369,7 @@ const bed: Piece = (g, dy) => {
 
 /** ピンクの座ぶとん（ソファの前） */
 const cushion: Piece = (g, dy) => {
-  g.blit(22, 25 + dy, [
+  g.blit(4, 26 + dy, [
     "..ccc..",
     "ccccccc",
     "cccDccc",
@@ -404,8 +397,8 @@ const LAND = [
   [8, 28],
   [36, 26],
   [15, 28],
-  [54, 32],
-  [25, 28],
+  [30, 28],
+  [7, 29],
   [61, 29],
 ];
 
@@ -440,15 +433,15 @@ export const art: LabelArt = {
       }
     }
 
-    // ── こすくまくん（部屋の右手前を歩く）──────────────────────────
+    // ── こすくまくん（部屋の真ん中を歩く）──────────────────────────
     // 11コマ目は梅干しを食べて、ひょいと跳ねる（食べるときだけ速い）
     const hop = f === 11 ? -2 : 0;
     // とことこ歩く: 1周で右へ行って左へ戻る。歩く向きに体を向け、1歩4コマで足を出す
-    const kx = KX + Math.round(4 * Math.sin((f / 12) * Math.PI * 2));
+    const kx = KX + Math.round(8 * Math.sin((f / 12) * Math.PI * 2));
     const right = Math.cos((f / 12) * Math.PI * 2) >= 0;
     const walk = KUMA_WALK[f % 4];
     const rows = right ? walk : walk.map((r) => r.split("").reverse().join(""));
-    g.ellipse(kx + 8, 33, 6, 1, "#00000030");
+    g.ellipse(kx + 8, 30, 6, 1, "#00000030");
     g.blit(kx, KY + hop, rows, {
       "#": "#3c342c",
       L: "#fffbe4",
@@ -458,10 +451,10 @@ export const art: LabelArt = {
     });
 
     // ── 梅干し。床を押すと降ってくる ─────────────────────
-    if (f === 9) g.disc(40, 18, 1, UME);
+    if (f === 9) g.disc(44, 17, 1, UME);
     if (f === 10) {
-      g.disc(41, 29, 1, UME);
-      g.px(40, 28, UME_L);
+      g.disc(44, 28, 1, UME);
+      g.px(43, 27, UME_L);
     }
 
     // ── 題字 ─────────────────────────────────────────────
