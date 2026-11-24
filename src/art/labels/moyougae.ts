@@ -24,7 +24,8 @@ import type { PixelGfx } from "../gfx";
 //   9〜10コマ目で梅干しが1つ降ってきて床に落ちる（ゲームの、床を押すと降る梅干し）。
 //   11コマ目、梅干しは消えて、こすくまくんがひょいと跳ねる（食べるときだけ速い）。
 //   こすくまくんはその間ずっと、ラグのまわりを左右にとことこ歩いている（2026-11-24 ユーザー
-//   「こすくまが歩いているのがいい」）。1周で右へ行って左へ戻り、1歩ごとに体が1ドット上下する。
+//   「こすくまが歩いているのがいい」「moyougae.kosukuma.com のこの感じで歩いて」）。
+//   ゲームと同じく、歩く向きに体を向け、体を左右に揺らしながら足を交互に出す。
 
 const BG = "#f7f0d4";
 const BG_LOW = "#e4efd2";
@@ -74,31 +75,104 @@ const H = 12;
 const W = 30;
 const FY = TOP + H; // 奥の角の床の高さ
 
-// ── こすくまくん（公式3Dデータの描き出しを 14x18 に縮めたもの）──
+// ── こすくまくん（公式3Dデータに、ゲームと同じ歩きのポーズをつけて描き出し、18x20 に縮めたもの）──
+// ゲームの歩き（moyougae の yit）と同じ量: 体を左右に 9°·sin、前のめり 4°、向き -5°·cos、
+// 脚 ±22°·cos、腕 ∓4°·cos、上下 .04·(.5-.5cos2s)。歩く向きへ 25° 体を向ける。1歩を4コマ（s=0,90,180,270°）。
+// 左へ歩くときは左右を反転して使う。手で描き直さない。
 // # 輪郭 / L 光 / o 地 / d 影 / e 目と鼻
-const KUMA3D = [
-  ".###..##..###.",
-  "#oLL##LL##LLL#",
-  "#oLLLLLLLLLoL#",
-  "#dooLLLLLLLoo#",
-  ".#ooLLLLLLLo#.",
-  ".#dooooLLLLo#.",
-  ".#dooooooooo#.",
-  ".#ddoooooooo#.",
-  ".#ddoooooooo#.",
-  ".#ddoeooeooo#.",
-  ".#ddooeooood#.",
-  "#d#dddddddd#o#",
-  ".#dd######dd#.",
-  "..#dooooooo#..",
-  "..#dooooooo#..",
-  "..#ddoooooo#..",
-  "..##ddoood##..",
-  "...########...",
+const KUMA_WALK = [
+  [
+    "..................",
+    "....##..##..###...",
+    "...#LL##LL##LLL#..",
+    "..#oLLLLLLLLLLL#..",
+    "..#dooLLLLLLLLd#..",
+    "...#dooLLLLLLL#...",
+    "...#dooooLLLoo#...",
+    "...#ddooooooooo#..",
+    "...#ddooooooooo#..",
+    "...#ddooooooeoo#..",
+    "...#ddooooeooo#...",
+    "....#ddooooeod#...",
+    "...##dddddddd###..",
+    "...#ddddd####d#...",
+    "....#doooooooo#...",
+    "....#doooooooo#...",
+    "....#dooooooo#....",
+    ".....#dddooo##....",
+    ".....#######......",
+    "..................",
+  ],
+  [
+    ".......##.........",
+    "......#LL####..##.",
+    ".....#oLLLLLL##LL#",
+    ".....#oooLLLLLLLo#",
+    ".....#ddoLLLLLLL##",
+    ".....#ddoLLLLLLLo#",
+    ".....#doooLLLLLo#.",
+    ".....#oooooooooo#.",
+    ".....#dooooooooo#.",
+    ".....#ddoooooooo#.",
+    ".....#ddooooeoeo#.",
+    "....###dddoooeod#.",
+    "....#oodddddddd#..",
+    ".....#ooodd#####..",
+    ".....#oooLLooo#...",
+    ".....#ooooLooo#...",
+    ".....#ddoooooo#...",
+    ".....#d##dddd#....",
+    ".....##..####.....",
+    "..................",
+  ],
+  [
+    "..................",
+    "....###.##.####...",
+    "...#LLL#LL#LLL#...",
+    "...#oLLLLLLLLoo#..",
+    "...#ooLLLLLLLL#...",
+    "...#ddoLLLLLLL#...",
+    "...#ddooLLLLooo#..",
+    "...#ddooooooooo#..",
+    "...#ddooooooooo#..",
+    "...#ddoooooooeo#..",
+    "...#dddooooeoo#...",
+    "....#dddooooed#...",
+    "....##ddddddd##...",
+    "...#oodddd####....",
+    "....#dooooooo#....",
+    "....#dooooLoo#....",
+    ".....#ooooooo#....",
+    ".....#dddooo##....",
+    ".....#######......",
+    ".....#............",
+  ],
+  [
+    ".........###......",
+    "......###LLL#.....",
+    ".#####LLLLLL#.....",
+    "#oLLLLLLLLLo#.....",
+    "#ooLLLLLLLLL#.....",
+    "#ddooLLLLLLL#.....",
+    ".#doooooooooo#....",
+    "..#dooooooooo#....",
+    "..#ddoooooooo#....",
+    "..#ddoooeooeo#....",
+    "..#ddoooooeoo#....",
+    "..#dddoooodd##....",
+    "...#dddddd##o#....",
+    "..#odddddooLo#....",
+    "..##dooooLLLo#....",
+    "....#oooooooo#....",
+    "....#dooooood#....",
+    "....#ddddd###.....",
+    "....#d####........",
+    ".....#............",
+  ],
 ];
-// 立つ位置。ラグのまわりを左右に行ったり来たりする（x は KX±5）
-const KX = 47;
-const KY = 15;
+// 立つ位置。ラグのまわりを左右に行ったり来たりする（x は KX±4）
+const KX = 46;
+const KY = 13;
 
 const T_MOYOU = [
   "...##........................#............##....##.....##.......",
@@ -369,11 +443,13 @@ export const art: LabelArt = {
     // ── こすくまくん（部屋の右手前を歩く）──────────────────────────
     // 11コマ目は梅干しを食べて、ひょいと跳ねる（食べるときだけ速い）
     const hop = f === 11 ? -2 : 0;
-    // とことこ歩く: 1周で右へ行って左へ戻る。1歩ごとに1ドット上下
-    const kx = KX + Math.round(5 * Math.sin((f / 12) * Math.PI * 2));
-    const step = f % 2 === 1 ? -1 : 0;
-    g.ellipse(kx + 7, KY + 18, 6, 1, "#00000030");
-    g.blit(kx, KY + hop + step, KUMA3D, {
+    // とことこ歩く: 1周で右へ行って左へ戻る。歩く向きに体を向け、1歩4コマで足を出す
+    const kx = KX + Math.round(4 * Math.sin((f / 12) * Math.PI * 2));
+    const right = Math.cos((f / 12) * Math.PI * 2) >= 0;
+    const walk = KUMA_WALK[f % 4];
+    const rows = right ? walk : walk.map((r) => r.split("").reverse().join(""));
+    g.ellipse(kx + 8, 33, 6, 1, "#00000030");
+    g.blit(kx, KY + hop, rows, {
       "#": "#3c342c",
       L: "#fffbe4",
       o: "#f4ecc4",
