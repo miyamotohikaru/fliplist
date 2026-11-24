@@ -1,31 +1,31 @@
 import type { LabelArt } from "./types";
 import type { PixelGfx } from "../gfx";
-import { misakiRow } from "../misaki";
-import { drawKosukumaSmall, KUMA } from "../kosukuma";
 
 // もようがえシミュレーター — 棚から家具を選んで部屋に置き、自分の部屋を作る。
-// 「できた」を押すと、こすくまくんが点数と一言で出来ばえを言う。
+// 「できた」を押すと、こすくまくんが点数とひとことで出来ばえを言う。
 // 友達に部屋を送って遊びに行ける。床を押すと梅干しが降ってきて、こすくまくんにあげられる。
 //
-// 図の骨組み: 実物（OGの絵）どおり、斜め上から見た箱の部屋。
-//   黄色いしま模様の壁が2面、木の床。地は生成りに淡い玉ぼけ。
-//   **こすくまくんを入れる**（2026-11-24 ユーザー依頼）。実物でも部屋のまん中に立っている。
-//   題字（左上の「もようがえ」）と重ならないよう、くまは部屋の右手前に立たせる。
-//   姿は kosukuma.ts が正解。置くだけで、目も口も足さない。
-//   家具は実物の棚にあるもの: 緑のソファ、青いふとんのベッド、額の絵、
-//   黄色とクリームのしまのラグ、ピンクの座ぶとん、鉢植え。
+// 図の骨組み（2026-11-24 描き直し。ユーザー「同じイラストすぎる」「URLの中にあるこすくまを使って」
+// 「フォントも同じすぎるので変えて」）:
+//   実物（OGの絵）どおり、斜め上から見た箱の部屋。黄色いしまの壁、木の床、淡い玉ぼけの地。
+//   **こすくまくんは実物の3Dの姿**: 黒いふちの無い、ころんと丸いクリーム色の人形を
+//   斜め上から見たところ（大きな頭の上に耳、顔は低い位置に目2つと鼻、短い腕、小さな体）。
+//   OGの絵を見て、光（左上）と影（右下）の4段で点を置いた。部屋のまん中、ラグの上に立つ。
+//   家具は実物の棚にあるもの: 緑のソファ、青いふとんのベッド、額の絵、窓、しまのラグ、
+//   ピンクの座ぶとん、鉢植え。
+//   題字「もようがえ」は Mochiy Pop One（OFL）を焼いたもの。1字ずつ色を変える。
+//   「シミュレーター」は同じ太さに合わせて手で起こした点の字。
 //
 // 動くもの（1周3秒・12コマ）:
 //   0コマ目（止まっているときの絵）は家具がそろった部屋。
 //   1コマ目で家具が消えて、空っぽの部屋にこすくまくんだけ。
-//   2〜7コマ目で家具が1つずつ上から落ちてきて置かれる（ゲームの置き方）。
-//   8コマ目は「できた」のきらきら。
+//   2〜8コマ目で家具が1つずつ上から落ちてきて置かれる（ゲームの置き方）。
 //   9〜10コマ目で梅干しが1つ降ってきて床に落ちる（ゲームの、床を押すと降る梅干し）。
 //   11コマ目、梅干しは消えて、こすくまくんがひょいと跳ねる（食べるときだけ速い）。
 
-const BG = "#f6eed6";
-const BG_DOT = "#fbf6e8";
-const BG_LOW = "#e6eed6";
+const BG = "#f7f0d4";
+const BG_LOW = "#e4efd2";
+const BG_DOT = "#fcf8e8";
 const WALL = "#f8ecd0";
 const WALL_STRIPE = "#ecc46a";
 const WALL_LOW = "#f3e6c8";
@@ -38,7 +38,6 @@ const BASE = "#c77a36";
 const BASE_D = "#a45f26";
 const EDGE = "#5c3a22";
 const WHITE = "#ffffff";
-const TITLE_Y = "#ffd84a";
 
 // 家具の色（実物の棚の色）
 const SOFA = "#7fcfa6";
@@ -59,20 +58,68 @@ const POT = "#d0703a";
 const FRAME = "#c98a4a";
 const PIC_SKY = "#a8d8f0";
 const PIC_HILL = "#7cc46a";
+const WIN_SKY = "#bfe6fa";
+const CURTAIN = "#f28a8a";
 const UME = "#d4304a";
 const UME_L = "#f06a80";
 
+// 題字の字ごとの色（も・よ・う・が・え）
+const TITLE_COLORS = ["#ff8fb0", "#ffb347", "#7fd6a8", "#7fb8ff", "#c79bff"];
+
 // 部屋の箱。奥の角 (CX, TOP)、壁の高さ H、床の半分の幅 W（傾き 1/2）
-const CX = 36;
-const TOP = 2;
+const CX = 34;
+const TOP = 6;
 const H = 12;
 const W = 30;
 const FY = TOP + H; // 奥の角の床の高さ
-// 床のひし形: 奥 (CX,FY) / 左 (CX-W, FY+W/2) / 右 (CX+W, FY+W/2) / 手前 (CX, FY+W)
 
-// くまの立つ位置（部屋の右手前）
-const KX = 46;
-const KY = 4;
+// ── こすくまくん（実物の3Dの姿。11x13）──────────────────
+// L 光 / o 地 / d 影 / s 濃い影 / e 目と鼻
+const KUMA3D = [
+  ".oo.....oo.",
+  "oLLoLLLoLod",
+  "oLLLLLLLLod",
+  "oLLLLLLLLod",
+  ".LLLLLLLLd.",
+  ".oLLLLLLod.",
+  ".ooLLLLood.",
+  ".ooeoooeod.",
+  "..oooeoodd.",
+  "oo.ddddd.ds",
+  "o.dooLood.d",
+  "..ddoooddd.",
+  "..ss...ss..",
+];
+const KX = 29;
+const KY = 17;
+
+const T_MOYOU = [
+  "...##............##..........##...........##...###.....##......",
+  "...##...........###.........#####.........##...###.....##......",
+  "..#####..........##..........#####.......###...##......###.....",
+  "#########........######.......####.......####..###....#######..",
+  "########.........######.....########...########.##..#########..",
+  "..##.............###......##########...########.###..###..##...",
+  "..##..##.........###......#####...###..####..###.#.......###...",
+  "..######.......#####......##......###...##...###........###....",
+  "########......#######.............###...##...###.......####....",
+  "#####....##..###.#####............##....##...###......######...",
+  "..###....##..##...#####..........###...###...##......#######.##",
+  "...##...###..##..###.###........###....###..###.....####.######",
+  "...#######...######...#.......####.....##...###.....###...####.",
+  "....#####.....#####...........###...........##......##....###..",
+  "................#..............................................",
+];
+const T_SIM = [
+  "##.......####...........##................##...........",
+  ".##...#....###..........##...............######........",
+  "......#..........#####..##..............##...##........",
+  "##...##..####........#..##....#.#######.#.##.##.#######",
+  ".##.##.....###.......#..##...##.#######....###..#######",
+  "...##................#..##..##.............##..........",
+  "..##....#####...#######.##.##.............##...........",
+  "###.......#####.#######.####............###............",
+];
 
 // ── 発行元の印 ──────────────────────────────────────────
 const MARK = ["#...#", ".###.", "#####", "#o#o#", ".#o#."];
@@ -80,7 +127,15 @@ function mark(g: PixelGfx, body: string, eye: string) {
   g.blit(61, 33, MARK, { "#": body, o: eye });
 }
 
-function title(g: PixelGfx, x: number, y: number, text: string, c: string) {
+/** 題字。こげ茶のふちを回して、列 cuts で区切った字ごとに色を変える */
+function title(
+  g: PixelGfx,
+  x: number,
+  y: number,
+  rows: readonly string[],
+  colors: readonly string[],
+  cuts: readonly number[],
+) {
   for (const [dx, dy] of [
     [-1, -1],
     [0, -1],
@@ -91,8 +146,15 @@ function title(g: PixelGfx, x: number, y: number, text: string, c: string) {
     [0, 1],
     [1, 1],
   ])
-    misakiRow(g, x + dx, y + dy, text, EDGE);
-  misakiRow(g, x, y, text, c);
+    g.blit(x + dx, y + dy, rows, { "#": EDGE });
+  rows.forEach((r, j) => {
+    for (let i = 0; i < r.length; i++) {
+      if (r[i] !== "#") continue;
+      let k = 0;
+      while (k < cuts.length && i >= cuts[k]) k++;
+      g.px(x + i, y + j, colors[k]);
+    }
+  });
 }
 
 /** 壁と床 */
@@ -127,14 +189,14 @@ function room(g: PixelGfx) {
   // 板目（左の壁と平行な目地と、ところどころ明るい板）
   for (let y = FY + 1; y < FY + W; y++) {
     for (let x = L; x <= R; x++) {
-      const u = x - CX + 2 * (y - FY); // 左の壁ぞいの座標
-      const v = CX - x + 2 * (y - FY); // 右の壁ぞいの座標
+      const u = x - CX + 2 * (y - FY);
+      const v = CX - x + 2 * (y - FY);
       if (u < 0 || v < 0 || u > 2 * W || v > 2 * W) continue;
       if (u % 6 === 0) g.px(x, y, FLOOR_D);
       else if (u % 6 === 3 && v % 16 < 5) g.px(x, y, FLOOR_L);
     }
   }
-  // 左の壁
+  // 左右の壁
   g.poly(
     [
       [L, LY - H],
@@ -144,7 +206,6 @@ function room(g: PixelGfx) {
     ],
     WALL,
   );
-  // 右の壁
   g.poly(
     [
       [CX, TOP],
@@ -165,11 +226,9 @@ function room(g: PixelGfx) {
       } else if (((x - CX) % 4 + 4) % 4 < 2) g.px(x, y, WALL_STRIPE);
     }
   }
-  // 壁の上の縁と、奥の角の線
+  // 壁の上の縁と、角の線
   g.line(L, LY - H, CX, TOP, WALL_CAP);
   g.line(CX, TOP, R, LY - H, WALL_CAP);
-  g.line(L, LY - H + 1, CX, TOP + 1, WALL_EDGE);
-  g.line(CX, TOP + 1, R, LY - H + 1, WALL_EDGE);
   g.vline(CX, TOP + 1, H, WALL_EDGE);
   g.vline(L, LY - H, H + 1, WALL_EDGE);
   g.vline(R, LY - H, H + 1, WALL_EDGE);
@@ -180,8 +239,8 @@ type Piece = (g: PixelGfx, dy: number) => void;
 
 /** 左の壁の額の絵（空と丘） */
 const picture: Piece = (g, dy) => {
-  const x = 18;
-  const y = 16 + dy;
+  const x = 7;
+  const y = 23 + dy;
   // 壁に沿って右上がりの平行四辺形（6x5）
   for (let i = 0; i < 6; i++) {
     const yy = y - Math.floor(i / 2);
@@ -191,15 +250,29 @@ const picture: Piece = (g, dy) => {
       g.px(x + i, yy + 3, PIC_HILL);
     }
   }
-  g.px(x + 3, y - 1 + 1, "#fff2a0"); // お日さま
 };
 
-/** 黄色とクリームのしまのラグ（床のまん中） */
+/** 右の壁の窓（カーテンつき） */
+const window_: Piece = (g, dy) => {
+  const x = 53;
+  const y = 18 + dy;
+  // 壁に沿って右下がりの平行四辺形（7x6）
+  for (let i = 0; i < 7; i++) {
+    const yy = y + Math.floor(i / 2);
+    g.vline(x + i, yy, 6, WHITE);
+    if (i > 0 && i < 6) g.vline(x + i, yy + 1, 4, WIN_SKY);
+    if (i === 3) g.vline(x + i, yy + 1, 4, WHITE);
+  }
+  g.vline(x - 1, y, 7, CURTAIN);
+  g.vline(x + 7, y + 3, 7, CURTAIN);
+};
+
+/** 黄色とクリームのしまのラグ（こすくまくんの足もと） */
 const rug: Piece = (g, dy) => {
-  const cx = 32;
-  const cy = 25 + dy;
-  for (let y = -4; y <= 4; y++) {
-    const half = (4 - Math.abs(y)) * 2 + 1;
+  const cx = 34;
+  const cy = 27 + dy;
+  for (let y = -3; y <= 3; y++) {
+    const half = (3 - Math.abs(y)) * 2 + 2;
     for (let x = -half; x <= half; x++) {
       const band = Math.floor((x + 2 * y + 40) / 3) % 2;
       g.px(cx + x, cy + y, band ? RUG_A : RUG_B);
@@ -209,7 +282,7 @@ const rug: Piece = (g, dy) => {
 
 /** 緑のソファ（左の壁ぞい） */
 const sofa: Piece = (g, dy) => {
-  g.blit(13, 19 + dy, [
+  g.blit(13, 20 + dy, [
     "..dd.......",
     ".dllddd....",
     "dlllllldd..",
@@ -222,9 +295,9 @@ const sofa: Piece = (g, dy) => {
   ], { d: SOFA_D, l: SOFA_L, b: SOFA, w: WOOD_D });
 };
 
-/** 青いふとんのベッド（奥の角のそば、右の壁ぞい） */
+/** 青いふとんのベッド（右の壁ぞい） */
 const bed: Piece = (g, dy) => {
-  g.blit(34, 12 + dy, [
+  g.blit(41, 18 + dy, [
     "ww.........",
     "wwss.......",
     "wsssbb.....",
@@ -237,9 +310,9 @@ const bed: Piece = (g, dy) => {
   ], { w: WOOD, s: SHEET, b: BED, l: BED_L });
 };
 
-/** ピンクの座ぶとん（ラグの上） */
+/** ピンクの座ぶとん（ソファの前） */
 const cushion: Piece = (g, dy) => {
-  g.blit(26, 23 + dy, [
+  g.blit(20, 26 + dy, [
     "..ccc..",
     "ccccccc",
     "cccDccc",
@@ -247,9 +320,9 @@ const cushion: Piece = (g, dy) => {
   ], { c: CUSHION, D: CUSHION_D, d: CUSHION_D });
 };
 
-/** 鉢植え（左手前） */
+/** 鉢植え（右の角） */
 const plant: Piece = (g, dy) => {
-  g.blit(5, 22 + dy, [
+  g.blit(57, 23 + dy, [
     ".l..l.",
     "lLl.Ll",
     ".lLLl.",
@@ -260,84 +333,85 @@ const plant: Piece = (g, dy) => {
   ], { l: LEAF, L: LEAF_D, p: POT, P: "#e89058" });
 };
 
-// 落ちてくる順（奥から手前へ。手前の物が奥の物を隠すので、描く順もこのまま）
-const PIECES: Piece[] = [picture, bed, rug, sofa, cushion, plant];
+// 落ちてくる順（壁から床へ、奥から手前へ。描く順もこのまま）
+const PIECES: Piece[] = [picture, window_, bed, sofa, rug, cushion, plant];
+// 落ちてくるときの、床の着地点（影を置く）
+const LAND = [
+  [9, 27],
+  [56, 25],
+  [47, 26],
+  [18, 29],
+  [34, 27],
+  [23, 29],
+  [60, 30],
+];
 
 export const art: LabelArt = {
   slug: "moyougae",
-  swatch: [WALL_STRIPE, FLOOR, SOFA, BED, KUMA.fill],
+  swatch: [WALL_STRIPE, FLOOR, SOFA, BED, TITLE_COLORS[0]],
   draw: (g, t) => {
     const f = Math.round(t * 12) % 12;
-    // 置いてある家具の数と、いま落ちてくる家具
-    const placed = f === 1 ? 0 : f >= 2 && f <= 7 ? f - 2 : PIECES.length;
-    const falling = f >= 2 && f <= 7 ? f - 2 : -1;
+    // 置いてある家具の数と、いま落ちてくる家具（2〜8コマ目）
+    const placed = f === 1 ? 0 : f >= 2 && f <= 8 ? f - 2 : PIECES.length;
+    const falling = f >= 2 && f <= 8 ? f - 2 : -1;
 
-    // ── 地（生成りに玉ぼけ。下は少し若草色）─────────────
+    // ── 地（生成りから若草色へ。淡い玉ぼけ）─────────────
     g.rect(0, 0, 68, 40, BG);
-    g.rect(0, 28, 68, 12, BG_LOW, "half");
+    g.rect(0, 20, 68, 20, BG_LOW, "half");
     for (const [x, y, r] of [
-      [6, 20, 5],
-      [62, 4, 4],
-      [3, 36, 3],
-      [22, 2, 3],
+      [3, 3, 4],
+      [64, 9, 5],
+      [6, 30, 3],
     ])
       g.disc(x, y, r, BG_DOT);
 
     // ── 部屋 ─────────────────────────────────────────────
     room(g);
 
-    // ── 家具 ─────────────────────────────────────────────
+    // ── 家具（こすくまくんより奥の物）────────────────────
     for (let i = 0; i < PIECES.length; i++) {
       if (i < placed) PIECES[i](g, 0);
-      else if (i === falling) PIECES[i](g, -3);
-    }
-    // 落ちてくる家具の下に、着地の影
-    if (falling >= 0) {
-      const at = [
-        [20, 21],
-        [40, 20],
-        [32, 25],
-        [18, 27],
-        [29, 26],
-        [8, 29],
-      ][falling];
-      g.hline(at[0] - 2, at[1], 5, FLOOR_D, "half");
-    }
-
-    // ── こすくまくん ─────────────────────────────────────
-    // 姿は kosukuma.ts が正解。ここでは置くだけ。
-    // 11コマ目は梅干しを食べて、ひょいと跳ねる（食べるときだけ速い）
-    const hop = f === 11 ? -2 : 0;
-    g.ellipse(KX + 10, KY + 26, 8, 1, "#00000030");
-    drawKosukumaSmall(g, KX, KY + hop);
-
-    // ── 梅干し。床を押すと降ってくる ─────────────────────
-    if (f === 9) g.disc(40, 12, 1.5, UME);
-    if (f === 10) {
-      g.disc(41, 27, 1.5, UME);
-      g.px(40, 26, UME_L);
-    }
-
-    // ── できた（きらきら）───────────────────────────────
-    if (f === 8) {
-      for (const [x, y] of [
-        [10, 17],
-        [44, 15],
-        [24, 25],
-        [40, 23],
-      ]) {
-        g.hline(x - 2, y, 5, TITLE_Y);
-        g.vline(x, y - 2, 5, TITLE_Y);
-        g.px(x, y, WHITE);
+      else if (i === falling) {
+        g.hline(LAND[i][0] - 2, LAND[i][1], 5, FLOOR_D, "half");
+        PIECES[i](g, -4);
       }
     }
 
+    // ── こすくまくん（ラグの上）──────────────────────────
+    // 11コマ目は梅干しを食べて、ひょいと跳ねる（食べるときだけ速い）
+    const hop = f === 11 ? -2 : 0;
+    g.hline(KX + 2, KY + 13, 7, FLOOR_D);
+    // 壁のクリーム色に溶けないよう、まわりに薄い茶の縁（3Dの輪郭の陰）
+    const SIL = Object.fromEntries("LodseE".split("").map((k) => [k, "#b8995c"]));
+    for (const [dx, dy] of [
+      [-1, 0],
+      [1, 0],
+      [0, -1],
+      [0, 1],
+    ])
+      g.blit(KX + dx, KY + hop + dy, KUMA3D, SIL);
+    g.blit(KX, KY + hop, KUMA3D, {
+      L: "#fffbe4",
+      o: "#f6edbe",
+      d: "#e2d18e",
+      s: "#c8b46e",
+      e: "#2a2018",
+    });
+
+    // ── 梅干し。床を押すと降ってくる ─────────────────────
+    if (f === 9) g.disc(42, 14, 1, UME);
+    if (f === 10) {
+      g.disc(41, 28, 1, UME);
+      g.px(40, 27, UME_L);
+    }
+
     // ── 題字 ─────────────────────────────────────────────
-    title(g, 3, 3, "もようがえ", TITLE_Y);
-    title(g, 3, 31, "シミュレーター", WHITE);
+    // も・よ・う・が・え の切れ目（列）
+    title(g, 3, 1, T_MOYOU, TITLE_COLORS, [12, 25, 38, 51]);
+    title(g, 3, 31, T_SIM, [WHITE], []);
 
     // ── ふち ─────────────────────────────────────────────
     g.frame(0, 0, 68, 40, EDGE);
-    mark(g, KUMA.fill, EDGE);
+    mark(g, "#f6edbe", EDGE);
   },
 };
