@@ -31,6 +31,7 @@ const TITLE_BREAKS: Record<string, string> = {
   hayaben: "学校でバレないように◇早弁するゲーム",
   wataame: "わたあめ◇シミュレーター",
   moyougae: "もようがえ◇シミュレーター",
+  "sase-keiba": "差せ！◇競馬と音ゲー",
 };
 
 /**
