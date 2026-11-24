@@ -194,7 +194,10 @@ export const art: LabelArt = {
   slug: "oshikome",
   swatch: [BODY, STRIPE, SUIT, CAP, TITLE_Y],
   draw: (g, t) => {
-    const f = Math.round(t * 12) % 12;
+    // ゆったり動かす（2026-11-25 ユーザー「最近のカセット動きが激しいので、もう少しゆったり」）。
+    // 12コマのうち SEQ のコマだけを、1周3秒で順にゆっくり見せる（初めの方のカセットと同じくらいの間）。
+    const SEQ = [0, 1, 0, 1];
+    const f = SEQ[Math.floor(t * SEQ.length) % SEQ.length];
     const pushing = f <= 7;
     const push = pushing && f % 2 === 0;
     const doorP = f === 8 ? 0.5 : f === 9 || f === 10 ? 1 : f === 11 ? 0.5 : 0;

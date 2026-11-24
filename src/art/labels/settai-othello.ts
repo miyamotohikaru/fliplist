@@ -118,7 +118,10 @@ export const art: LabelArt = {
   slug: "settai-othello",
   swatch: [GREEN, STONE_W, STONE_B, KUMA.fill, LINE],
   draw: (g, t) => {
-    const f = Math.round(t * 12) % 12;
+    // ゆったり動かす（2026-11-25 ユーザー「最近のカセット動きが激しいので、もう少しゆったり」）。
+    // 12コマのうち SEQ のコマだけを、1周3秒で順にゆっくり見せる（初めの方のカセットと同じくらいの間）。
+    const SEQ = [0, 1, 2, 3, 4, 9];
+    const f = SEQ[Math.floor(t * SEQ.length) % SEQ.length];
 
     // ── 盤 ───────────────────────────────────────────────
     g.rect(0, 0, 68, 40, GREEN);

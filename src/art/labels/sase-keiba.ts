@@ -258,7 +258,10 @@ export const art: LabelArt = {
   slug: "sase-keiba",
   swatch: [TURF, SKY, COAT, MY_SILK.cap, BANG],
   draw: (g, t) => {
-    const f = Math.round(t * 12) % 12;
+    // ゆったり動かす（2026-11-25 ユーザー「最近のカセット動きが激しいので、もう少しゆったり」）。
+    // 12コマのうち SEQ のコマだけを、1周3秒で順にゆっくり見せる（初めの方のカセットと同じくらいの間）。
+    const SEQ = [0, 1, 2, 3];
+    const f = SEQ[Math.floor(t * SEQ.length) % SEQ.length];
 
     // ── 空・モノレール・並木 ─────────────────────────────
     g.rect(0, 0, 68, 12, SKY);
@@ -298,8 +301,9 @@ export const art: LabelArt = {
     g.rect(0, 12, 68, 28, TURF);
     for (let k = -1; k < 12; k++) {
       // 奥ほど細い帯。f で手前へずれていく
-      const p0 = (k + f / 6) / 10;
-      const p1 = (k + 0.5 + f / 6) / 10;
+      // しまは流さない（ゆったり）
+      const p0 = k / 10;
+      const p1 = (k + 0.5) / 10;
       const y0 = 12 + Math.round(28 * Math.pow(Math.max(0, p0), 1.6));
       const y1 = 12 + Math.round(28 * Math.pow(Math.max(0, p1), 1.6));
       if (y1 > y0) g.rect(0, y0, 68, Math.min(40, y1) - y0, TURF_L);
@@ -315,14 +319,14 @@ export const art: LabelArt = {
       }
     }
     for (let y = 13; y < 32; y += 4) {
-      const yy = y + (f % 2);
+      const yy = y;
       const x = Math.round(railX(yy));
       g.vline(x, yy, 2, RAIL);
     }
 
     // ── 前を走る馬たち（奥から順に）──────────────────────
     // 追い込んで差を詰めるので、少しずつ手前へ下がってくる
-    const near = Math.floor(f / 4);
+    const near = 0;
     for (const [cx, fy, size, silk, ph] of [...FIELD].sort((a, b) => a[1] - b[1])) {
       const stride = (f + ph) % 2;
       const yy = fy + near + (stride ? 0 : -1);
